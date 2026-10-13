@@ -1,0 +1,40 @@
+{
+  "status": "verified",
+  "monthlyActivationReady": true,
+  "claims": 851096,
+  "sessions": 29448,
+  "sourceWindow": {
+    "version": "settlement-first-1.0",
+    "stage": "month",
+    "cutoff": 955836,
+    "start": "2026-09-06T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "services": [
+      "arb-one",
+      "base",
+      "bsc",
+      "eth",
+      "opbnb",
+      "poly",
+      "robinhood",
+      "solana"
+    ],
+    "membershipTime": "session-end archive height",
+    "scope": "all indexed settled claims in service/session-end window",
+    "referenceProductSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+  },
+  "sampledCountsChecked": 4080,
+  "coveredOverlapsReconciled": 1652,
+  "fortnightSessionsReconciled": 13415,
+  "fortnightReceiptVerified": true,
+  "ownerPartitionsConserveExactly": true,
+  "canonicalSha256": "21f496a917fa3dd9fad3dbc31a9eba8a6e5707d76e1c87c345a68a5ab8c1cd5a",
+  "packedSha256": "d24c43b4f040cdbffad57bb4698f43164063876721a581d15ec2f7e3a56c3fe0",
+  "originalSampleSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "notice": "Indexed settled-session earnings only. Sessions absent from the index are outside this denominator, not verified zero. This is not all relays or registered-session presence. No eligible population is inferred; selection models remain in the original sampled snapshot.",
+  "originalSampledCoverageUnchanged": {
+    "covered": 1652,
+    "sessions": 4080
+  },
+  "wholeGroupCauseEstablished": false
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "claimId": "955813-finalize_block-23457",
+    "matches": 1,
+    "sumUpokt": "257082",
+    "matchedSessionIds": [
+      "91ccd8d42635bdc22187c6a3c44549293cefbeb04b49e9e257b9a77f1fc3e068"
+    ]
+  },
+  {
+    "claimId": "955813-finalize_block-24477",
+    "matches": 1,
+    "sumUpokt": "123168",
+    "matchedSessionIds": [
+      "bf3641e497678c4d949cdf19253e8162e3f26b6fe2f7a0844e5a249310c48801"
+    ]
+  }
+]

@@ -1,0 +1,57 @@
+{
+  "asOfDate": "2026-10-13",
+  "status": "actual_month_verified_private_update_ready",
+  "sourceWindow": {
+    "start": "2026-09-06T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "cutoff": 955836
+  },
+  "services": [
+    "arb-one",
+    "base",
+    "bsc",
+    "eth",
+    "opbnb",
+    "poly",
+    "robinhood",
+    "solana"
+  ],
+  "indexedClaims": 851096,
+  "indexedSettledSessions": 29448,
+  "unknownDistributionClaims": 0,
+  "sampledCountsChecked": 4080,
+  "coveredOverlapsReconciled": 1652,
+  "fortnightSessionsReconciled": 13415,
+  "fortnightReceiptVerified": true,
+  "independentlyReconciledOwnerGroups": 198,
+  "serviceSubsetPeriodCases": 765,
+  "comparisonSortCases": 48,
+  "historicalTestScope": "kleomedes.network",
+  "historicalTestsAvailableServices": 8,
+  "productTests": 80,
+  "pythonTestsPassed": 101,
+  "notebookOfflineTestsPassed": 62,
+  "originalReportChecks": 167,
+  "sampledCoveragePreserved": {
+    "covered": 1652,
+    "sessions": 4080,
+    "unknown": 2428
+  },
+  "canonicalSha256": "21f496a917fa3dd9fad3dbc31a9eba8a6e5707d76e1c87c345a68a5ab8c1cd5a",
+  "packedSha256": "d24c43b4f040cdbffad57bb4698f43164063876721a581d15ec2f7e3a56c3fe0",
+  "originalSampleSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "independentOnChainControlClaims": 142,
+  "unknownGroupCauseEstablished": false,
+  "validationLimits": [
+    "Native browser rendering, focus trapping, clipboard and downloads remain unverified.",
+    "Finite filter matrices do not prove every possible combination.",
+    "Complete attribution of returned indexed settlements does not prove every actual payment was indexed.",
+    "The monthly historical earnings test uses later observed opportunity; it does not forecast future traffic."
+  ],
+  "deferred": [
+    "Public GitHub",
+    "Vercel",
+    "Ramiro handoff"
+  ],
+  "sourceAudit": "../data/settlement-integration.json"
+}

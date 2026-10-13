@@ -1,0 +1,17 @@
+{
+  "name": "pokt-fleet-analysis-phase1",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pocket fleet analysis with recorded mainnet evidence and an explicit fictional preview.",
+  "scripts": {
+    "fixtures": "node scripts/generate-fixtures.mjs",
+    "contract": "node scripts/write-contract.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

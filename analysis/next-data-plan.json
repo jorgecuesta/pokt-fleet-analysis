@@ -1,0 +1,34 @@
+{
+  "status": "specified_not_executed",
+  "firstStep": "Run optional indexed-history diagnostics in pokt_monthly_analysis.ipynb locally",
+  "sampleGridExperiment": {
+    "requiresSeparatelyVersionedCollectorChange": true,
+    "start": "2026-09-29T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "services": [
+      "arb-one",
+      "base",
+      "bsc",
+      "eth",
+      "opbnb",
+      "poly",
+      "robinhood",
+      "solana"
+    ],
+    "hoursUTC": [
+      0,
+      3,
+      6,
+      9,
+      12,
+      15,
+      18,
+      21
+    ],
+    "applicationPolicy": "all_historical",
+    "sharedPoints": 56,
+    "serviceObservations": 448,
+    "cutoffPolicy": "Pin and report a mature cutoff; preserve the original cutoff only if archive/indexer availability permits. Never merge cutoffs invisibly."
+  },
+  "unknownPolicy": "No indexed claim remains unknown; do not remove Applications solely because no claim was returned."
+}

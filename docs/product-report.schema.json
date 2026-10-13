@@ -1,0 +1,1087 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "POKT fleet analysis product report v1",
+  "description": "Product model shape. Financial units are POKT. Semantic invariants are documented in product-contract.md.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "dataKind",
+    "snapshotId",
+    "generatedAt",
+    "query",
+    "scope",
+    "service",
+    "services",
+    "period",
+    "rewards",
+    "exposure",
+    "scenarioReference",
+    "scenarioReferences",
+    "perService",
+    "trend",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "dataKind": {
+      "enum": [
+        "illustrative",
+        "live"
+      ]
+    },
+    "snapshotId": {
+      "type": "string"
+    },
+    "generatedAt": {
+      "type": "string"
+    },
+    "query": {
+      "type": "object",
+      "required": [
+        "scope",
+        "serviceIds",
+        "period",
+        "filters"
+      ],
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/queryScope"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "serviceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "period": {
+          "enum": [
+            "7",
+            "14",
+            "30"
+          ]
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter"
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "type",
+        "value",
+        "label",
+        "fleetId",
+        "fleetNames",
+        "supplierCount",
+        "identityCount",
+        "latestEligibleCount",
+        "membershipRule",
+        "fictional",
+        "filters",
+        "sampleNotice"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "fleet",
+            "supplier",
+            "owner",
+            "hostname",
+            "domain",
+            "network"
+          ]
+        },
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "fleetId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fleetNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "supplierCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "identityCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "latestEligibleCount": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "membershipRule": {
+          "type": "string"
+        },
+        "fictional": {
+          "type": "boolean"
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter"
+          }
+        },
+        "sampleNotice": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "shortName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "shortName": {
+          "type": "string"
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "shortName"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "period": {
+      "type": "object",
+      "required": [
+        "start",
+        "endExclusive",
+        "timezone",
+        "requestedDays"
+      ],
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "endExclusive": {
+          "type": "string"
+        },
+        "timezone": {
+          "const": "UTC"
+        },
+        "requestedDays": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "rewards": {
+      "$ref": "#/$defs/rewards"
+    },
+    "exposure": {
+      "$ref": "#/$defs/exposure"
+    },
+    "scenarioReference": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/scenarioReference"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scenarioReferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "observedAt",
+          "totalEligible",
+          "ownEligible",
+          "selectionCap",
+          "populationId",
+          "assumption",
+          "serviceId",
+          "serviceName"
+        ],
+        "properties": {
+          "observedAt": {
+            "type": "string"
+          },
+          "totalEligible": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ownEligible": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "selectionCap": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "populationId": {
+            "type": "string"
+          },
+          "assumption": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string"
+          },
+          "serviceName": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "perService": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "availability",
+          "reason",
+          "actualPokt",
+          "equalSharePokt",
+          "ratio",
+          "differencePercent",
+          "intervalRatio",
+          "intervalDifferencePercent",
+          "direction",
+          "informativeDays",
+          "positiveSessions",
+          "comparableSessions",
+          "recordedSessions",
+          "coverage",
+          "largestDayShare",
+          "daily",
+          "bootstrap",
+          "id",
+          "label",
+          "exposure"
+        ],
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "limited",
+              "partial",
+              "unavailable"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "actualPokt": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "equalSharePokt": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "ratio": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "differencePercent": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": -100
+          },
+          "intervalRatio": {
+            "$ref": "#/$defs/interval"
+          },
+          "intervalDifferencePercent": {
+            "$ref": "#/$defs/interval"
+          },
+          "direction": {
+            "enum": [
+              "above",
+              "below",
+              "no_clear_difference",
+              "not_assessed"
+            ]
+          },
+          "informativeDays": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "positiveSessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "comparableSessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "recordedSessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "coverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "largestDayShare": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "date",
+                "actual",
+                "reference",
+                "sessions",
+                "positiveSessions"
+              ],
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "actual": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "reference": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sessions": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "positiveSessions": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "bootstrap": {
+            "type": "object",
+            "required": [
+              "definedDraws",
+              "repetitions"
+            ],
+            "properties": {
+              "definedDraws": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "repetitions": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "exposure": {
+            "$ref": "#/$defs/exposure"
+          }
+        }
+      }
+    },
+    "trend": {
+      "type": "object",
+      "required": [
+        "points",
+        "variable",
+        "earlierRatio",
+        "laterRatio"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "availability",
+              "reason",
+              "actualPokt",
+              "equalSharePokt",
+              "ratio",
+              "differencePercent",
+              "intervalRatio",
+              "intervalDifferencePercent",
+              "direction",
+              "informativeDays",
+              "positiveSessions",
+              "comparableSessions",
+              "recordedSessions",
+              "coverage",
+              "largestDayShare",
+              "daily",
+              "bootstrap",
+              "id",
+              "label"
+            ],
+            "properties": {
+              "availability": {
+                "enum": [
+                  "available",
+                  "limited",
+                  "partial",
+                  "unavailable"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "actualPokt": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "equalSharePokt": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "ratio": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "differencePercent": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -100
+              },
+              "intervalRatio": {
+                "$ref": "#/$defs/interval"
+              },
+              "intervalDifferencePercent": {
+                "$ref": "#/$defs/interval"
+              },
+              "direction": {
+                "enum": [
+                  "above",
+                  "below",
+                  "no_clear_difference",
+                  "not_assessed"
+                ]
+              },
+              "informativeDays": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "positiveSessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "comparableSessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "recordedSessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "coverage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "largestDayShare": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "daily": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "date",
+                    "actual",
+                    "reference",
+                    "sessions",
+                    "positiveSessions"
+                  ],
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "actual": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "reference": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "sessions": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "positiveSessions": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              },
+              "bootstrap": {
+                "type": "object",
+                "required": [
+                  "definedDraws",
+                  "repetitions"
+                ],
+                "properties": {
+                  "definedDraws": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "repetitions": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              },
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "variable": {
+          "type": "boolean"
+        },
+        "earlierRatio": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "laterRatio": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "recordedSessions",
+        "verifiedRosters",
+        "comparableOutcomes",
+        "missingOutcomes",
+        "pendingOutcomes",
+        "zeroPoolSessions",
+        "informativeDays",
+        "positiveOpportunities",
+        "largestDayShare",
+        "membershipRule",
+        "sourceNotice",
+        "sampling",
+        "thresholdNotice",
+        "limitations"
+      ],
+      "properties": {
+        "recordedSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedRosters": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comparableOutcomes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missingOutcomes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pendingOutcomes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "zeroPoolSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "informativeDays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "positiveOpportunities": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "largestDayShare": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "membershipRule": {
+          "type": "string"
+        },
+        "sourceNotice": {
+          "type": "string"
+        },
+        "sampling": {
+          "type": "string"
+        },
+        "thresholdNotice": {
+          "type": "string"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "queryScope": {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "fleet",
+            "supplier",
+            "owner",
+            "hostname",
+            "domain",
+            "network"
+          ]
+        },
+        "value": {
+          "type": "string"
+        },
+        "fleetId": {
+          "type": "string"
+        }
+      }
+    },
+    "filter": {
+      "type": "object",
+      "required": [
+        "dimension",
+        "value"
+      ],
+      "properties": {
+        "dimension": {
+          "enum": [
+            "infrastructure",
+            "service",
+            "fleet",
+            "hostname",
+            "domain",
+            "owner",
+            "supplier",
+            "gateway",
+            "application",
+            "week",
+            "hour",
+            "selected_count",
+            "session_value"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "required": [
+        "availability",
+        "reason",
+        "actualPokt",
+        "equalSharePokt",
+        "ratio",
+        "differencePercent",
+        "intervalRatio",
+        "intervalDifferencePercent",
+        "direction",
+        "informativeDays",
+        "positiveSessions",
+        "comparableSessions",
+        "recordedSessions",
+        "coverage",
+        "largestDayShare",
+        "daily",
+        "bootstrap"
+      ],
+      "properties": {
+        "availability": {
+          "enum": [
+            "available",
+            "limited",
+            "partial",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "actualPokt": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "equalSharePokt": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "ratio": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "differencePercent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -100
+        },
+        "intervalRatio": {
+          "$ref": "#/$defs/interval"
+        },
+        "intervalDifferencePercent": {
+          "$ref": "#/$defs/interval"
+        },
+        "direction": {
+          "enum": [
+            "above",
+            "below",
+            "no_clear_difference",
+            "not_assessed"
+          ]
+        },
+        "informativeDays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "positiveSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comparableSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recordedSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "largestDayShare": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "daily": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "date",
+              "actual",
+              "reference",
+              "sessions",
+              "positiveSessions"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              "actual": {
+                "type": "number",
+                "minimum": 0
+              },
+              "reference": {
+                "type": "number",
+                "minimum": 0
+              },
+              "sessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "positiveSessions": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "bootstrap": {
+          "type": "object",
+          "required": [
+            "definedDraws",
+            "repetitions"
+          ],
+          "properties": {
+            "definedDraws": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "repetitions": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "exposure": {
+      "type": "object",
+      "required": [
+        "availability",
+        "reason",
+        "recordedSessions",
+        "verifiedSessions",
+        "presentSessions",
+        "presenceFraction",
+        "meanSelected",
+        "expectedPresenceFraction",
+        "expectedMeanSelected",
+        "eligibleRange",
+        "missingRosters",
+        "selectedPositions"
+      ],
+      "properties": {
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recordedSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "presentSessions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "presenceFraction": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "meanSelected": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "expectedPresenceFraction": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "expectedMeanSelected": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "eligibleRange": {
+          "$ref": "#/$defs/interval"
+        },
+        "missingRosters": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selectedPositions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "interval": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "number"
+      }
+    },
+    "scenarioReference": {
+      "type": "object",
+      "required": [
+        "observedAt",
+        "totalEligible",
+        "ownEligible",
+        "selectionCap",
+        "populationId",
+        "assumption"
+      ],
+      "properties": {
+        "observedAt": {
+          "type": "string"
+        },
+        "totalEligible": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ownEligible": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selectionCap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "populationId": {
+          "type": "string"
+        },
+        "assumption": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

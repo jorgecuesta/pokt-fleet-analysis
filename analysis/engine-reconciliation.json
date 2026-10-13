@@ -1,0 +1,330 @@
+{
+  "snapshotId": "live-7d282134db50c264",
+  "description": "Expected values from the unchanged src/engine.js, not alternate estimates.",
+  "cases": [
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 5640.376040999999,
+        "equalSharePokt": 5640.3760409999995,
+        "ratio": 0.9999999999999999,
+        "covered": 74,
+        "sessions": 224,
+        "coverage": 0.33035714285714285
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 1155.4937870000003,
+        "equalSharePokt": 1361.8100671400002,
+        "ratio": 0.8484984910022775,
+        "covered": 74,
+        "sessions": 224,
+        "coverage": 0.33035714285714285
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 326.847974,
+        "equalSharePokt": 370.78024769999996,
+        "ratio": 0.8815139857839845,
+        "covered": 74,
+        "sessions": 224,
+        "coverage": 0.33035714285714285
+      }
+    },
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 14534.534239999995,
+        "equalSharePokt": 14534.53424,
+        "ratio": 0.9999999999999997,
+        "covered": 36,
+        "sessions": 84,
+        "coverage": 0.42857142857142855
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 2842.4545350000008,
+        "equalSharePokt": 3815.0128224399996,
+        "ratio": 0.745070768381331,
+        "covered": 36,
+        "sessions": 84,
+        "coverage": 0.42857142857142855
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 7,
+      "expected": {
+        "actualPokt": 2593.573311,
+        "equalSharePokt": 1313.28884912,
+        "ratio": 1.9748689046875598,
+        "covered": 36,
+        "sessions": 84,
+        "coverage": 0.42857142857142855
+      }
+    },
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 10682.086374999997,
+        "equalSharePokt": 10682.086374999999,
+        "ratio": 0.9999999999999998,
+        "covered": 145,
+        "sessions": 448,
+        "coverage": 0.3236607142857143
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 2126.9342950000005,
+        "equalSharePokt": 2634.9029012,
+        "ratio": 0.8072154362998887,
+        "covered": 145,
+        "sessions": 448,
+        "coverage": 0.3236607142857143
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 743.699311,
+        "equalSharePokt": 703.0469236600002,
+        "ratio": 1.0578231494540464,
+        "covered": 145,
+        "sessions": 448,
+        "coverage": 0.3236607142857143
+      }
+    },
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 29231.144422999994,
+        "equalSharePokt": 29231.14442299999,
+        "ratio": 1.0000000000000002,
+        "covered": 92,
+        "sessions": 168,
+        "coverage": 0.5476190476190477
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 5586.574119,
+        "equalSharePokt": 7499.259984360003,
+        "ratio": 0.7449500524919814,
+        "covered": 92,
+        "sessions": 168,
+        "coverage": 0.5476190476190477
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 14,
+      "expected": {
+        "actualPokt": 4647.339772,
+        "equalSharePokt": 2399.8530131,
+        "ratio": 1.9365101723446048,
+        "covered": 92,
+        "sessions": 168,
+        "coverage": 0.5476190476190477
+      }
+    },
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 24271.823362000017,
+        "equalSharePokt": 24271.823362000017,
+        "ratio": 1,
+        "covered": 317,
+        "sessions": 960,
+        "coverage": 0.3302083333333333
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 4688.006248999999,
+        "equalSharePokt": 6098.22485646,
+        "ratio": 0.7687493261311737,
+        "covered": 317,
+        "sessions": 960,
+        "coverage": 0.3302083333333333
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "eth"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 1959.950807000001,
+        "equalSharePokt": 1457.0557601599994,
+        "ratio": 1.3451446818924615,
+        "covered": 317,
+        "sessions": 960,
+        "coverage": 0.3302083333333333
+      }
+    },
+    {
+      "scope": {
+        "type": "network",
+        "value": "live-sample"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 51637.959327000026,
+        "equalSharePokt": 51637.95932700002,
+        "ratio": 1.0000000000000002,
+        "covered": 219,
+        "sessions": 360,
+        "coverage": 0.6083333333333333
+      }
+    },
+    {
+      "scope": {
+        "type": "owner",
+        "value": "pokt1ndn42rysxq4h7jfevf85hk82ggqy47auvdm03p"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 9938.840430999999,
+        "equalSharePokt": 13575.660590719996,
+        "ratio": 0.7321073154844456,
+        "covered": 219,
+        "sessions": 360,
+        "coverage": 0.6083333333333333
+      }
+    },
+    {
+      "scope": {
+        "type": "domain",
+        "value": "kleomedes.network"
+      },
+      "serviceIds": [
+        "poly"
+      ],
+      "days": 30,
+      "expected": {
+        "actualPokt": 6069.720036999998,
+        "equalSharePokt": 3606.46165144,
+        "ratio": 1.6830124991281856,
+        "covered": 219,
+        "sessions": 360,
+        "coverage": 0.6083333333333333
+      }
+    }
+  ]
+}

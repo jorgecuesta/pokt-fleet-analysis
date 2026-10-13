@@ -1,0 +1,88 @@
+{
+  "snapshotId": "live-464a3e77f23f34ad",
+  "period": {
+    "start": "2026-10-05T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "timezone": "UTC"
+  },
+  "registeredServices": 264,
+  "collectedServices": [
+    "arb-one",
+    "base",
+    "bsc",
+    "eth",
+    "opbnb",
+    "poly",
+    "robinhood",
+    "solana"
+  ],
+  "activityScreen": {
+    "start": "2026-09-29T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z"
+  },
+  "activityShare": 0.8609650975859178,
+  "coverage": {
+    "samplePoints": 4,
+    "sessions": 136,
+    "settledClaims": 1407,
+    "comparableSessions": 53,
+    "unverifiedPayoutClaims": 0
+  },
+  "ownerGroups": 195,
+  "supplierIdentities": 4342,
+  "cutoff": 955836,
+  "collectionMetrics": {
+    "secondsThisInvocation": 379.64,
+    "httpAttemptsThisInvocation": 157,
+    "wireBytesThisInvocation": 145917727,
+    "sourceCacheRoot": "responses/"
+  },
+  "originalCoreSha256": "440aa3ec538a6cb79c22e60f1897f90e6b6d8f4f233f7a89557fecce6f09ac03",
+  "revisedCollectorSha256": "7c0b96b0802b945523a6802ce06bc84124d5ffb4dc2b7b50218e99bdbcc93c27",
+  "protocolVectorsSha256": "08be6460161dab0add9d79bd0b0d3920759e3d6c39280e9b523deb9c6474d355",
+  "extension": {
+    "requestedDays": 30,
+    "status": "blocked_by_network_policy",
+    "completedPointFiles": 37,
+    "requiredPointFiles": 120,
+    "payoutCollectionComplete": false,
+    "runnerPrepared": true,
+    "services": [
+      "arb-one",
+      "base",
+      "bsc",
+      "eth",
+      "opbnb",
+      "poly",
+      "robinhood",
+      "solana"
+    ]
+  },
+  "validation": {
+    "productTests": 41,
+    "collectorTests": 13,
+    "illustrativeContractReports": 134,
+    "liveContractReports": 33,
+    "visualBrowserReview": false
+  },
+  "processorVersion": "phase2-1.2",
+  "endpointParsing": {
+    "schemaVersion": 2,
+    "processorVersion": "phase2-1.2",
+    "suffixListSource": "https://publicsuffix.org/list/public_suffix_list.dat",
+    "suffixListSha256": "ba7d836c0ea57a8bcf9f1fcb868066a7554bed029b441ecc6204ad8494a32612",
+    "includesPrivateSuffixes": true,
+    "endpointCount": 5475,
+    "suffixListVersion": "2026-10-07_07-28-19_UTC",
+    "accountValidation": "Pocket Bech32 prefix, checksum, padding and 20-byte account payload; role comes from registry fields.",
+    "invalidEndpointCount": 1,
+    "identityRule": "Recorded service-specific endpoint association; business ownership, location and physical servers are not inferred."
+  },
+  "domainGroups": 14,
+  "uiRevision": {
+    "date": "2026-10-09",
+    "discovery": "Four initial suggestions; separate comparison tab; observed period and pending-month notice.",
+    "sorting": "All rows sort by selected earnings/F metric; numeric ranks remain evidence-restricted.",
+    "runner": "Matching legacy root catalogue allowed on exact resume; validates 120 observation points and 960 service observations; per-service payout audit."
+  }
+}

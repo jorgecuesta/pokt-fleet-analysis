@@ -1,0 +1,31 @@
+name: Verify fleet analysis
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: npm test
+      - run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - run: python scripts/build-settlement-notebook.py --output '${{ runner.temp }}/pokt_settlement_collection.ipynb'
+      - run: python scripts/verify-settlement-notebook.py '${{ runner.temp }}/pokt_settlement_collection.ipynb'
+      - run: node scripts/audit-site.mjs
+      - run: npm run build
+      - run: npm run check

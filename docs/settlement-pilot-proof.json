@@ -1,0 +1,66 @@
+{
+  "status": "reconciled",
+  "config": {
+    "version": "settlement-first-1.0",
+    "stage": "pilot",
+    "cutoff": 955836,
+    "start": "2026-09-29T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "services": [
+      "eth"
+    ],
+    "membershipTime": "session-end archive height",
+    "scope": "all indexed settled claims in service/session-end window",
+    "referenceProductSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+  },
+  "coverage": {
+    "indexedClaims": 26888,
+    "verifiedDistributionClaims": 26888,
+    "unknownDistributionClaims": 0,
+    "indexedSettledSessions": 1327,
+    "verifiedDistributionSessions": 1327
+  },
+  "overlap": {
+    "sampledSessionsChecked": 224,
+    "coveredSessionsReconciled": 74,
+    "membershipDifferences": [],
+    "passed": true
+  },
+  "supplierIds": 4291,
+  "ownerGroups": 193,
+  "domainGroups": 13,
+  "endpointRecords": 694,
+  "indexedGrossPokt": 105711.87436,
+  "ownerActualAndReferenceConservePool": true,
+  "artifactSha256": "896cfdac369eab8b21c65560e0ad0fefee59c8e45566d44e840be5e761fab30b",
+  "compressedBytes": 961612,
+  "sourceSha256": "5e8b3bc482a336a82fcd231f13e580cbd0580258377d0f6b8619456921412214",
+  "monthlyExpansionStatus": "started; incomplete; not installed in website",
+  "metricsNotice": "Each receipt measures its own invocation; the final source check reused the complete cache.",
+  "completedResumedInvocationMetrics": {
+    "seconds": 1388.11,
+    "httpAttempts": 936,
+    "wireBytes": 32774090,
+    "compressedBytes": 961612
+  },
+  "finalCachedSourceCheckMetrics": {
+    "seconds": 31.94,
+    "httpAttempts": 4,
+    "wireBytes": 27072,
+    "compressedBytes": 961612
+  },
+  "losslessProductPacking": {
+    "codec": "membership-indices-v2",
+    "bytes": 629564,
+    "sourceBytes": 961612,
+    "reductionPercent": 34.5,
+    "roundTrip": "entire canonical pilot restores exactly",
+    "sha256": "2a7f39bedda9a486abdfb8782787cda2f08d63dfe2eab9b2fa37d2c5bf318187"
+  },
+  "monthlyApiIssue": {
+    "type": "Pocketdex PostgreSQL statement timeout",
+    "sqlstate": "57014",
+    "handling": "Remove repeated whole-window counts from transfer pages; retry the same cursor with progressively smaller pages only for this known error; preserve before/after counts and exact final totals.",
+    "lastLoggedCompletedClaimsBeforeStop": 10500
+  }
+}

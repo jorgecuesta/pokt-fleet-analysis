@@ -1,0 +1,1519 @@
+{
+  "schemaVersion": 1,
+  "dataKind": "illustrative",
+  "snapshotId": "illustrative-september-2026-v1",
+  "generatedAt": "2026-10-02T00:00:00.000Z",
+  "query": {
+    "scope": {
+      "type": "fleet",
+      "value": "alder"
+    },
+    "serviceIds": [
+      "base",
+      "bsc",
+      "eth"
+    ],
+    "period": "30",
+    "filters": [],
+    "serviceId": "base"
+  },
+  "scope": {
+    "type": "fleet",
+    "value": "alder",
+    "label": "Alder Relay",
+    "fleetId": "alder",
+    "fleetNames": [
+      "Alder Relay"
+    ],
+    "supplierCount": 48,
+    "identityCount": 48,
+    "latestEligibleCount": 48,
+    "membershipRule": "Recorded fleet directory with historical eligibility",
+    "fictional": true,
+    "filters": [],
+    "sampleNotice": null
+  },
+  "service": {
+    "id": "selected-services",
+    "name": "3 services",
+    "shortName": "3 services"
+  },
+  "services": [
+    {
+      "id": "base",
+      "name": "Base",
+      "shortName": "BASE",
+      "colour": "#657391"
+    },
+    {
+      "id": "bsc",
+      "name": "BNB Smart Chain",
+      "shortName": "BSC",
+      "colour": "#29776d"
+    },
+    {
+      "id": "eth",
+      "name": "Ethereum",
+      "shortName": "ETH",
+      "colour": "#586fc2"
+    }
+  ],
+  "period": {
+    "start": "2026-09-01T00:00:00.000Z",
+    "endExclusive": "2026-10-01T00:00:00.000Z",
+    "timezone": "UTC",
+    "requestedDays": 30
+  },
+  "rewards": {
+    "availability": "available",
+    "reason": null,
+    "actualPokt": 21289.95563599997,
+    "equalSharePokt": 17460.079488320036,
+    "ratio": 1.2193504416885352,
+    "differencePercent": 21.935044168853523,
+    "intervalRatio": [
+      1.2003105867551929,
+      1.2402264639114529
+    ],
+    "intervalDifferencePercent": [
+      20.031058675519287,
+      24.022646391145287
+    ],
+    "direction": "above",
+    "informativeDays": 30,
+    "positiveSessions": 1145,
+    "comparableSessions": 1440,
+    "recordedSessions": 1440,
+    "coverage": 1,
+    "largestDayShare": 0.04509936094545039,
+    "daily": [
+      {
+        "date": "2026-09-01",
+        "actual": 801.9800810000003,
+        "reference": 654.2701762,
+        "sessions": 48,
+        "positiveSessions": 36
+      },
+      {
+        "date": "2026-09-02",
+        "actual": 703.403181,
+        "reference": 576.7165905,
+        "sessions": 48,
+        "positiveSessions": 41
+      },
+      {
+        "date": "2026-09-03",
+        "actual": 634.449458,
+        "reference": 528.70306194,
+        "sessions": 48,
+        "positiveSessions": 34
+      },
+      {
+        "date": "2026-09-04",
+        "actual": 613.744704,
+        "reference": 511.47548825999985,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-05",
+        "actual": 589.183406,
+        "reference": 506.02485228000006,
+        "sessions": 48,
+        "positiveSessions": 36
+      },
+      {
+        "date": "2026-09-06",
+        "actual": 690.2111580000002,
+        "reference": 593.5903489799999,
+        "sessions": 48,
+        "positiveSessions": 37
+      },
+      {
+        "date": "2026-09-07",
+        "actual": 771.115536,
+        "reference": 666.0557576000001,
+        "sessions": 48,
+        "positiveSessions": 41
+      },
+      {
+        "date": "2026-09-08",
+        "actual": 619.6527979999998,
+        "reference": 529.9983483799999,
+        "sessions": 48,
+        "positiveSessions": 38
+      },
+      {
+        "date": "2026-09-09",
+        "actual": 876.925782,
+        "reference": 730.2129768399998,
+        "sessions": 48,
+        "positiveSessions": 40
+      },
+      {
+        "date": "2026-09-10",
+        "actual": 733.8921209999996,
+        "reference": 652.6818545999997,
+        "sessions": 48,
+        "positiveSessions": 40
+      },
+      {
+        "date": "2026-09-11",
+        "actual": 656.908062,
+        "reference": 531.63556572,
+        "sessions": 48,
+        "positiveSessions": 37
+      },
+      {
+        "date": "2026-09-12",
+        "actual": 932.4742270000002,
+        "reference": 787.43842698,
+        "sessions": 48,
+        "positiveSessions": 43
+      },
+      {
+        "date": "2026-09-13",
+        "actual": 923.491818,
+        "reference": 748.9347794799999,
+        "sessions": 48,
+        "positiveSessions": 40
+      },
+      {
+        "date": "2026-09-14",
+        "actual": 850.1288730000002,
+        "reference": 732.0976063200002,
+        "sessions": 48,
+        "positiveSessions": 43
+      },
+      {
+        "date": "2026-09-15",
+        "actual": 717.0435389999998,
+        "reference": 629.48978656,
+        "sessions": 48,
+        "positiveSessions": 37
+      },
+      {
+        "date": "2026-09-16",
+        "actual": 809.7637780000001,
+        "reference": 624.7021364000002,
+        "sessions": 48,
+        "positiveSessions": 41
+      },
+      {
+        "date": "2026-09-17",
+        "actual": 707.2283419999999,
+        "reference": 573.1764945999998,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-18",
+        "actual": 688.803025,
+        "reference": 544.99099688,
+        "sessions": 48,
+        "positiveSessions": 36
+      },
+      {
+        "date": "2026-09-19",
+        "actual": 654.846422,
+        "reference": 491.63587278,
+        "sessions": 48,
+        "positiveSessions": 38
+      },
+      {
+        "date": "2026-09-20",
+        "actual": 627.334217,
+        "reference": 521.20669388,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-21",
+        "actual": 702.169996,
+        "reference": 553.58144618,
+        "sessions": 48,
+        "positiveSessions": 40
+      },
+      {
+        "date": "2026-09-22",
+        "actual": 709.1449210000002,
+        "reference": 560.3397503599999,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-23",
+        "actual": 694.1044900000002,
+        "reference": 562.0389861200001,
+        "sessions": 48,
+        "positiveSessions": 38
+      },
+      {
+        "date": "2026-09-24",
+        "actual": 527.401624,
+        "reference": 460.88214025999997,
+        "sessions": 48,
+        "positiveSessions": 32
+      },
+      {
+        "date": "2026-09-25",
+        "actual": 585.850096,
+        "reference": 474.53171941999994,
+        "sessions": 48,
+        "positiveSessions": 35
+      },
+      {
+        "date": "2026-09-26",
+        "actual": 710.005479,
+        "reference": 555.36481898,
+        "sessions": 48,
+        "positiveSessions": 36
+      },
+      {
+        "date": "2026-09-27",
+        "actual": 591.1980360000001,
+        "reference": 496.9549196799999,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-28",
+        "actual": 845.373248,
+        "reference": 637.3694448599999,
+        "sessions": 48,
+        "positiveSessions": 39
+      },
+      {
+        "date": "2026-09-29",
+        "actual": 528.951638,
+        "reference": 409.19762896000003,
+        "sessions": 48,
+        "positiveSessions": 36
+      },
+      {
+        "date": "2026-09-30",
+        "actual": 793.1755799999999,
+        "reference": 614.7808183200001,
+        "sessions": 48,
+        "positiveSessions": 36
+      }
+    ],
+    "bootstrap": {
+      "definedDraws": 2000,
+      "repetitions": 2000
+    }
+  },
+  "exposure": {
+    "availability": "available",
+    "reason": null,
+    "recordedSessions": 1440,
+    "verifiedSessions": 1440,
+    "presentSessions": 1201,
+    "presenceFraction": 0.8340277777777778,
+    "meanSelected": 1.7375,
+    "expectedPresenceFraction": 0.8273618647213521,
+    "expectedMeanSelected": 1.6993577218146074,
+    "eligibleRange": [
+      48,
+      48
+    ],
+    "missingRosters": 0,
+    "selectedPositions": 2502
+  },
+  "scenarioReference": null,
+  "scenarioReferences": [
+    {
+      "serviceId": "base",
+      "serviceName": "Base",
+      "observedAt": "2026-09-30T00:00:00.000Z",
+      "totalEligible": 1551,
+      "ownEligible": 48,
+      "selectionCap": 50,
+      "populationId": "base:2026-09-30",
+      "assumption": "Other eligible Suppliers and the selection cap remain fixed."
+    },
+    {
+      "serviceId": "bsc",
+      "serviceName": "BNB Smart Chain",
+      "observedAt": "2026-09-30T00:00:00.000Z",
+      "totalEligible": 1425,
+      "ownEligible": 48,
+      "selectionCap": 50,
+      "populationId": "bsc:2026-09-30",
+      "assumption": "Other eligible Suppliers and the selection cap remain fixed."
+    },
+    {
+      "serviceId": "eth",
+      "serviceName": "Ethereum",
+      "observedAt": "2026-09-30T00:00:00.000Z",
+      "totalEligible": 1488,
+      "ownEligible": 48,
+      "selectionCap": 50,
+      "populationId": "eth:2026-09-30",
+      "assumption": "Other eligible Suppliers and the selection cap remain fixed."
+    }
+  ],
+  "perService": [
+    {
+      "id": "base",
+      "label": "Base",
+      "availability": "available",
+      "reason": null,
+      "actualPokt": 6969.166374999998,
+      "equalSharePokt": 5676.355788599999,
+      "ratio": 1.2277536212575664,
+      "differencePercent": 22.775362125756637,
+      "intervalRatio": [
+        1.200074644097737,
+        1.2565636512377758
+      ],
+      "intervalDifferencePercent": [
+        20.0074644097737,
+        25.65636512377758
+      ],
+      "direction": "above",
+      "informativeDays": 30,
+      "positiveSessions": 372,
+      "comparableSessions": 480,
+      "recordedSessions": 480,
+      "coverage": 1,
+      "largestDayShare": 0.04851784929921122,
+      "daily": [
+        {
+          "date": "2026-09-01",
+          "actual": 169.935132,
+          "reference": 136.74310068,
+          "sessions": 16,
+          "positiveSessions": 10
+        },
+        {
+          "date": "2026-09-02",
+          "actual": 254.88869400000004,
+          "reference": 199.45873089999998,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-03",
+          "actual": 214.08658400000002,
+          "reference": 172.99078086000003,
+          "sessions": 16,
+          "positiveSessions": 9
+        },
+        {
+          "date": "2026-09-04",
+          "actual": 174.03873399999995,
+          "reference": 154.09227746,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-05",
+          "actual": 267.148019,
+          "reference": 226.5725701,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-06",
+          "actual": 251.420579,
+          "reference": 201.24831340000003,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-07",
+          "actual": 218.40625400000002,
+          "reference": 194.47769358000002,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-08",
+          "actual": 188.789285,
+          "reference": 171.9052033,
+          "sessions": 16,
+          "positiveSessions": 10
+        },
+        {
+          "date": "2026-09-09",
+          "actual": 308.452022,
+          "reference": 240.43802,
+          "sessions": 16,
+          "positiveSessions": 15
+        },
+        {
+          "date": "2026-09-10",
+          "actual": 236.04687700000002,
+          "reference": 204.89221256000002,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-11",
+          "actual": 203.92110499999998,
+          "reference": 163.56921972,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-12",
+          "actual": 276.44334499999997,
+          "reference": 243.31333514,
+          "sessions": 16,
+          "positiveSessions": 16
+        },
+        {
+          "date": "2026-09-13",
+          "actual": 285.622261,
+          "reference": 233.45472254,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-14",
+          "actual": 327.30712300000005,
+          "reference": 275.40457472,
+          "sessions": 16,
+          "positiveSessions": 16
+        },
+        {
+          "date": "2026-09-15",
+          "actual": 283.003814,
+          "reference": 253.72156384,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-16",
+          "actual": 206.863587,
+          "reference": 150.73012246000002,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-17",
+          "actual": 261.449305,
+          "reference": 215.766134,
+          "sessions": 16,
+          "positiveSessions": 15
+        },
+        {
+          "date": "2026-09-18",
+          "actual": 183.56548000000004,
+          "reference": 136.4636897,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-19",
+          "actual": 190.362274,
+          "reference": 136.93936828,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-20",
+          "actual": 245.25171100000003,
+          "reference": 211.51221040000001,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-21",
+          "actual": 269.573729,
+          "reference": 212.84970024,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-22",
+          "actual": 185.59868799999998,
+          "reference": 138.61712871999998,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-23",
+          "actual": 189.288716,
+          "reference": 150.63790741999998,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-24",
+          "actual": 173.091344,
+          "reference": 149.11703921999998,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-25",
+          "actual": 173.28934199999998,
+          "reference": 140.57969442,
+          "sessions": 16,
+          "positiveSessions": 9
+        },
+        {
+          "date": "2026-09-26",
+          "actual": 293.663757,
+          "reference": 215.42397622000001,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-27",
+          "actual": 152.12845600000003,
+          "reference": 125.55092043999998,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-28",
+          "actual": 331.46227,
+          "reference": 252.18742457999997,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-29",
+          "actual": 137.432661,
+          "reference": 116.5903203,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-30",
+          "actual": 316.635227,
+          "reference": 251.1078334,
+          "sessions": 16,
+          "positiveSessions": 11
+        }
+      ],
+      "bootstrap": {
+        "definedDraws": 2000,
+        "repetitions": 2000
+      },
+      "exposure": {
+        "availability": "available",
+        "reason": null,
+        "recordedSessions": 480,
+        "verifiedSessions": 480,
+        "presentSessions": 390,
+        "presenceFraction": 0.8125,
+        "meanSelected": 1.63125,
+        "expectedPresenceFraction": 0.8134203612739916,
+        "expectedMeanSelected": 1.6246597734562511,
+        "eligibleRange": [
+          48,
+          48
+        ],
+        "missingRosters": 0,
+        "selectedPositions": 783
+      }
+    },
+    {
+      "id": "bsc",
+      "label": "BNB Smart Chain",
+      "availability": "available",
+      "reason": null,
+      "actualPokt": 7086.530399000005,
+      "equalSharePokt": 5943.750302420004,
+      "ratio": 1.1922658319133488,
+      "differencePercent": 19.22658319133488,
+      "intervalRatio": [
+        1.1648539002569414,
+        1.2239590191301895
+      ],
+      "intervalDifferencePercent": [
+        16.485390025694137,
+        22.395901913018946
+      ],
+      "direction": "above",
+      "informativeDays": 30,
+      "positiveSessions": 392,
+      "comparableSessions": 480,
+      "recordedSessions": 480,
+      "coverage": 1,
+      "largestDayShare": 0.054229825362745065,
+      "daily": [
+        {
+          "date": "2026-09-01",
+          "actual": 301.021363,
+          "reference": 246.25239022,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-02",
+          "actual": 220.059503,
+          "reference": 186.32623766,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-03",
+          "actual": 277.720847,
+          "reference": 240.20941210000004,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-04",
+          "actual": 215.94356400000004,
+          "reference": 172.15220969999996,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-05",
+          "actual": 148.77845300000004,
+          "reference": 133.16433021999998,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-06",
+          "actual": 235.65831000000003,
+          "reference": 220.67919906,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-07",
+          "actual": 291.21949300000006,
+          "reference": 260.34055122,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-08",
+          "actual": 201.73015800000002,
+          "reference": 171.34693253999998,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-09",
+          "actual": 155.073016,
+          "reference": 146.55594244,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-10",
+          "actual": 257.588733,
+          "reference": 243.92041240000003,
+          "sessions": 16,
+          "positiveSessions": 16
+        },
+        {
+          "date": "2026-09-11",
+          "actual": 184.53282899999996,
+          "reference": 149.95095844,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-12",
+          "actual": 360.143486,
+          "reference": 322.3285409,
+          "sessions": 16,
+          "positiveSessions": 15
+        },
+        {
+          "date": "2026-09-13",
+          "actual": 353.452878,
+          "reference": 279.0311765,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-14",
+          "actual": 244.719537,
+          "reference": 214.34309806,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-15",
+          "actual": 191.719579,
+          "reference": 175.39223444,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-16",
+          "actual": 338.528263,
+          "reference": 260.94925401999996,
+          "sessions": 16,
+          "positiveSessions": 15
+        },
+        {
+          "date": "2026-09-17",
+          "actual": 280.46182400000004,
+          "reference": 239.83863844,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-18",
+          "actual": 290.44910300000004,
+          "reference": 252.05767305999998,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-19",
+          "actual": 278.817235,
+          "reference": 215.26191589999996,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-20",
+          "actual": 179.38077199999998,
+          "reference": 146.76517130000002,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-21",
+          "actual": 227.42715599999994,
+          "reference": 172.76286401999997,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-22",
+          "actual": 276.11794899999995,
+          "reference": 214.3136179,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-23",
+          "actual": 245.77834800000005,
+          "reference": 210.5096506,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-24",
+          "actual": 103.924647,
+          "reference": 84.86411950000002,
+          "sessions": 16,
+          "positiveSessions": 8
+        },
+        {
+          "date": "2026-09-25",
+          "actual": 156.016313,
+          "reference": 124.32296682000002,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-26",
+          "actual": 187.243806,
+          "reference": 152.87191876,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-27",
+          "actual": 153.63337700000002,
+          "reference": 139.9164896,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-28",
+          "actual": 261.988021,
+          "reference": 190.63111931999998,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-29",
+          "actual": 204.80593,
+          "reference": 160.51215332,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-30",
+          "actual": 262.595906,
+          "reference": 216.17912396,
+          "sessions": 16,
+          "positiveSessions": 14
+        }
+      ],
+      "bootstrap": {
+        "definedDraws": 2000,
+        "repetitions": 2000
+      },
+      "exposure": {
+        "availability": "available",
+        "reason": null,
+        "recordedSessions": 480,
+        "verifiedSessions": 480,
+        "presentSessions": 411,
+        "presenceFraction": 0.85625,
+        "meanSelected": 1.8604166666666666,
+        "expectedPresenceFraction": 0.8413547765763618,
+        "expectedMeanSelected": 1.7763118777979858,
+        "eligibleRange": [
+          48,
+          48
+        ],
+        "missingRosters": 0,
+        "selectedPositions": 893
+      }
+    },
+    {
+      "id": "eth",
+      "label": "Ethereum",
+      "availability": "available",
+      "reason": null,
+      "actualPokt": 7234.258861999996,
+      "equalSharePokt": 5839.973397299998,
+      "ratio": 1.238748598639956,
+      "differencePercent": 23.874859863995603,
+      "intervalRatio": [
+        1.2143207829584006,
+        1.2644514638752702
+      ],
+      "intervalDifferencePercent": [
+        21.432078295840064,
+        26.445146387527018
+      ],
+      "direction": "above",
+      "informativeDays": 30,
+      "positiveSessions": 381,
+      "comparableSessions": 480,
+      "recordedSessions": 480,
+      "coverage": 1,
+      "largestDayShare": 0.058770646893474006,
+      "daily": [
+        {
+          "date": "2026-09-01",
+          "actual": 331.02358599999997,
+          "reference": 271.27468530000004,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-02",
+          "actual": 228.45498399999997,
+          "reference": 190.93162194,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-03",
+          "actual": 142.642027,
+          "reference": 115.50286898,
+          "sessions": 16,
+          "positiveSessions": 11
+        },
+        {
+          "date": "2026-09-04",
+          "actual": 223.762406,
+          "reference": 185.23100110000004,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-05",
+          "actual": 173.25693399999997,
+          "reference": 146.28795196,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-06",
+          "actual": 203.13226899999998,
+          "reference": 171.66283652,
+          "sessions": 16,
+          "positiveSessions": 10
+        },
+        {
+          "date": "2026-09-07",
+          "actual": 261.48978900000003,
+          "reference": 211.23751280000005,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-08",
+          "actual": 229.133355,
+          "reference": 186.74621254,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-09",
+          "actual": 413.4007439999999,
+          "reference": 343.2190144,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-10",
+          "actual": 240.25651100000002,
+          "reference": 203.86922964,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-11",
+          "actual": 268.454128,
+          "reference": 218.11538756,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-12",
+          "actual": 295.88739599999997,
+          "reference": 221.79655094,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-13",
+          "actual": 284.41667900000004,
+          "reference": 236.44888044,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-14",
+          "actual": 278.102213,
+          "reference": 242.34993354,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-15",
+          "actual": 242.32014600000002,
+          "reference": 200.37598827999997,
+          "sessions": 16,
+          "positiveSessions": 14
+        },
+        {
+          "date": "2026-09-16",
+          "actual": 264.37192799999997,
+          "reference": 213.02275992000003,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-17",
+          "actual": 165.317213,
+          "reference": 117.57172216000001,
+          "sessions": 16,
+          "positiveSessions": 10
+        },
+        {
+          "date": "2026-09-18",
+          "actual": 214.78844200000003,
+          "reference": 156.46963411999997,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-19",
+          "actual": 185.66691299999997,
+          "reference": 139.4345886,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-20",
+          "actual": 202.70173399999996,
+          "reference": 162.92931217999998,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-21",
+          "actual": 205.169111,
+          "reference": 167.96888192000003,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-22",
+          "actual": 247.428284,
+          "reference": 207.40900374000003,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-23",
+          "actual": 259.037426,
+          "reference": 200.89142809999993,
+          "sessions": 16,
+          "positiveSessions": 15
+        },
+        {
+          "date": "2026-09-24",
+          "actual": 250.38563300000004,
+          "reference": 226.90098154000003,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-25",
+          "actual": 256.54444100000006,
+          "reference": 209.62905818000002,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-26",
+          "actual": 229.09791600000003,
+          "reference": 187.06892400000004,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-27",
+          "actual": 285.436203,
+          "reference": 231.48750964,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-28",
+          "actual": 251.92295700000003,
+          "reference": 194.55090096,
+          "sessions": 16,
+          "positiveSessions": 13
+        },
+        {
+          "date": "2026-09-29",
+          "actual": 186.71304700000002,
+          "reference": 132.09515534,
+          "sessions": 16,
+          "positiveSessions": 12
+        },
+        {
+          "date": "2026-09-30",
+          "actual": 213.94444700000005,
+          "reference": 147.49386096,
+          "sessions": 16,
+          "positiveSessions": 11
+        }
+      ],
+      "bootstrap": {
+        "definedDraws": 2000,
+        "repetitions": 2000
+      },
+      "exposure": {
+        "availability": "available",
+        "reason": null,
+        "recordedSessions": 480,
+        "verifiedSessions": 480,
+        "presentSessions": 400,
+        "presenceFraction": 0.8333333333333334,
+        "meanSelected": 1.7208333333333334,
+        "expectedPresenceFraction": 0.8273104563136843,
+        "expectedMeanSelected": 1.697101514189599,
+        "eligibleRange": [
+          48,
+          48
+        ],
+        "missingRosters": 0,
+        "selectedPositions": 826
+      }
+    }
+  ],
+  "trend": {
+    "points": [
+      {
+        "id": "0",
+        "label": "1–7 Sept",
+        "availability": "available",
+        "reason": null,
+        "actualPokt": 4804.087523999998,
+        "equalSharePokt": 4036.836275760001,
+        "ratio": 1.1900625132723641,
+        "differencePercent": 19.006251327236413,
+        "intervalRatio": [
+          1.1698842269462202,
+          1.2104635902500847
+        ],
+        "intervalDifferencePercent": [
+          16.988422694622017,
+          21.046359025008464
+        ],
+        "direction": "above",
+        "informativeDays": 7,
+        "positiveSessions": 264,
+        "comparableSessions": 336,
+        "recordedSessions": 336,
+        "coverage": 1,
+        "largestDayShare": 0.16499449373249703,
+        "daily": [
+          {
+            "date": "2026-09-01",
+            "actual": 801.9800810000003,
+            "reference": 654.2701762,
+            "sessions": 48,
+            "positiveSessions": 36
+          },
+          {
+            "date": "2026-09-02",
+            "actual": 703.403181,
+            "reference": 576.7165905,
+            "sessions": 48,
+            "positiveSessions": 41
+          },
+          {
+            "date": "2026-09-03",
+            "actual": 634.449458,
+            "reference": 528.70306194,
+            "sessions": 48,
+            "positiveSessions": 34
+          },
+          {
+            "date": "2026-09-04",
+            "actual": 613.744704,
+            "reference": 511.47548825999985,
+            "sessions": 48,
+            "positiveSessions": 39
+          },
+          {
+            "date": "2026-09-05",
+            "actual": 589.183406,
+            "reference": 506.02485228000006,
+            "sessions": 48,
+            "positiveSessions": 36
+          },
+          {
+            "date": "2026-09-06",
+            "actual": 690.2111580000002,
+            "reference": 593.5903489799999,
+            "sessions": 48,
+            "positiveSessions": 37
+          },
+          {
+            "date": "2026-09-07",
+            "actual": 771.115536,
+            "reference": 666.0557576000001,
+            "sessions": 48,
+            "positiveSessions": 41
+          }
+        ],
+        "bootstrap": {
+          "definedDraws": 2000,
+          "repetitions": 2000
+        }
+      },
+      {
+        "id": "1",
+        "label": "8–14 Sept",
+        "availability": "available",
+        "reason": null,
+        "actualPokt": 5593.4736809999995,
+        "equalSharePokt": 4712.999558320002,
+        "ratio": 1.1868182060670196,
+        "differencePercent": 18.68182060670196,
+        "intervalRatio": [
+          1.1586022157714466,
+          1.2135775875516828
+        ],
+        "intervalDifferencePercent": [
+          15.860221577144662,
+          21.357758755168277
+        ],
+        "direction": "above",
+        "informativeDays": 7,
+        "positiveSessions": 281,
+        "comparableSessions": 336,
+        "recordedSessions": 336,
+        "coverage": 1,
+        "largestDayShare": 0.1670779759760238,
+        "daily": [
+          {
+            "date": "2026-09-08",
+            "actual": 619.6527979999998,
+            "reference": 529.9983483799999,
+            "sessions": 48,
+            "positiveSessions": 38
+          },
+          {
+            "date": "2026-09-09",
+            "actual": 876.925782,
+            "reference": 730.2129768399998,
+            "sessions": 48,
+            "positiveSessions": 40
+          },
+          {
+            "date": "2026-09-10",
+            "actual": 733.8921209999996,
+            "reference": 652.6818545999997,
+            "sessions": 48,
+            "positiveSessions": 40
+          },
+          {
+            "date": "2026-09-11",
+            "actual": 656.908062,
+            "reference": 531.63556572,
+            "sessions": 48,
+            "positiveSessions": 37
+          },
+          {
+            "date": "2026-09-12",
+            "actual": 932.4742270000002,
+            "reference": 787.43842698,
+            "sessions": 48,
+            "positiveSessions": 43
+          },
+          {
+            "date": "2026-09-13",
+            "actual": 923.491818,
+            "reference": 748.9347794799999,
+            "sessions": 48,
+            "positiveSessions": 40
+          },
+          {
+            "date": "2026-09-14",
+            "actual": 850.1288730000002,
+            "reference": 732.0976063200002,
+            "sessions": 48,
+            "positiveSessions": 43
+          }
+        ],
+        "bootstrap": {
+          "definedDraws": 2000,
+          "repetitions": 2000
+        }
+      },
+      {
+        "id": "2",
+        "label": "15–21 Sept",
+        "availability": "available",
+        "reason": null,
+        "actualPokt": 4907.189318999998,
+        "equalSharePokt": 3938.7834272799996,
+        "ratio": 1.2458642140648868,
+        "differencePercent": 24.58642140648868,
+        "intervalRatio": [
+          1.2010226821699255,
+          1.2884175530296202
+        ],
+        "intervalDifferencePercent": [
+          20.10226821699255,
+          28.841755302962024
+        ],
+        "direction": "above",
+        "informativeDays": 7,
+        "positiveSessions": 270,
+        "comparableSessions": 336,
+        "recordedSessions": 336,
+        "coverage": 1,
+        "largestDayShare": 0.15981832923337597,
+        "daily": [
+          {
+            "date": "2026-09-15",
+            "actual": 717.0435389999998,
+            "reference": 629.48978656,
+            "sessions": 48,
+            "positiveSessions": 37
+          },
+          {
+            "date": "2026-09-16",
+            "actual": 809.7637780000001,
+            "reference": 624.7021364000002,
+            "sessions": 48,
+            "positiveSessions": 41
+          },
+          {
+            "date": "2026-09-17",
+            "actual": 707.2283419999999,
+            "reference": 573.1764945999998,
+            "sessions": 48,
+            "positiveSessions": 39
+          },
+          {
+            "date": "2026-09-18",
+            "actual": 688.803025,
+            "reference": 544.99099688,
+            "sessions": 48,
+            "positiveSessions": 36
+          },
+          {
+            "date": "2026-09-19",
+            "actual": 654.846422,
+            "reference": 491.63587278,
+            "sessions": 48,
+            "positiveSessions": 38
+          },
+          {
+            "date": "2026-09-20",
+            "actual": 627.334217,
+            "reference": 521.20669388,
+            "sessions": 48,
+            "positiveSessions": 39
+          },
+          {
+            "date": "2026-09-21",
+            "actual": 702.169996,
+            "reference": 553.58144618,
+            "sessions": 48,
+            "positiveSessions": 40
+          }
+        ],
+        "bootstrap": {
+          "definedDraws": 2000,
+          "repetitions": 2000
+        }
+      },
+      {
+        "id": "3",
+        "label": "22–28 Sept",
+        "availability": "available",
+        "reason": null,
+        "actualPokt": 4663.077894,
+        "equalSharePokt": 3747.4817796800003,
+        "ratio": 1.2443230329456554,
+        "differencePercent": 24.43230329456554,
+        "intervalRatio": [
+          1.1989994176407333,
+          1.2834534124347525
+        ],
+        "intervalDifferencePercent": [
+          19.899941764073326,
+          28.345341243475254
+        ],
+        "direction": "above",
+        "informativeDays": 7,
+        "positiveSessions": 258,
+        "comparableSessions": 336,
+        "recordedSessions": 336,
+        "coverage": 1,
+        "largestDayShare": 0.17007939793490479,
+        "daily": [
+          {
+            "date": "2026-09-22",
+            "actual": 709.1449210000002,
+            "reference": 560.3397503599999,
+            "sessions": 48,
+            "positiveSessions": 39
+          },
+          {
+            "date": "2026-09-23",
+            "actual": 694.1044900000002,
+            "reference": 562.0389861200001,
+            "sessions": 48,
+            "positiveSessions": 38
+          },
+          {
+            "date": "2026-09-24",
+            "actual": 527.401624,
+            "reference": 460.88214025999997,
+            "sessions": 48,
+            "positiveSessions": 32
+          },
+          {
+            "date": "2026-09-25",
+            "actual": 585.850096,
+            "reference": 474.53171941999994,
+            "sessions": 48,
+            "positiveSessions": 35
+          },
+          {
+            "date": "2026-09-26",
+            "actual": 710.005479,
+            "reference": 555.36481898,
+            "sessions": 48,
+            "positiveSessions": 36
+          },
+          {
+            "date": "2026-09-27",
+            "actual": 591.1980360000001,
+            "reference": 496.9549196799999,
+            "sessions": 48,
+            "positiveSessions": 39
+          },
+          {
+            "date": "2026-09-28",
+            "actual": 845.373248,
+            "reference": 637.3694448599999,
+            "sessions": 48,
+            "positiveSessions": 39
+          }
+        ],
+        "bootstrap": {
+          "definedDraws": 2000,
+          "repetitions": 2000
+        }
+      },
+      {
+        "id": "4",
+        "label": "29–30 Sept",
+        "availability": "limited",
+        "reason": "2 informative days and 72 reward opportunities; more observations are needed.",
+        "actualPokt": 1322.1272179999999,
+        "equalSharePokt": 1023.9784472800003,
+        "ratio": 1.2911670372672137,
+        "differencePercent": 29.116703726721372,
+        "intervalRatio": null,
+        "intervalDifferencePercent": null,
+        "direction": "not_assessed",
+        "informativeDays": 2,
+        "positiveSessions": 72,
+        "comparableSessions": 96,
+        "recordedSessions": 96,
+        "coverage": 1,
+        "largestDayShare": 0.6003845295309153,
+        "daily": [
+          {
+            "date": "2026-09-29",
+            "actual": 528.951638,
+            "reference": 409.19762896000003,
+            "sessions": 48,
+            "positiveSessions": 36
+          },
+          {
+            "date": "2026-09-30",
+            "actual": 793.1755799999999,
+            "reference": 614.7808183200001,
+            "sessions": 48,
+            "positiveSessions": 36
+          }
+        ],
+        "bootstrap": {
+          "definedDraws": 0,
+          "repetitions": 2000
+        }
+      }
+    ],
+    "variable": false,
+    "earlierRatio": 1.1850110758007348,
+    "laterRatio": 1.2592081207543762
+  },
+  "evidence": {
+    "recordedSessions": 1440,
+    "verifiedRosters": 1440,
+    "comparableOutcomes": 1440,
+    "missingOutcomes": 0,
+    "pendingOutcomes": 0,
+    "zeroPoolSessions": 62,
+    "informativeDays": 30,
+    "positiveOpportunities": 1145,
+    "largestDayShare": 0.04509936094545039,
+    "membershipRule": "Recorded fleet directory with historical eligibility",
+    "sourceNotice": "All fleets, identities, Gateway relationships, eligibility and payouts are fictional.",
+    "sampling": "Controlled fictional session observations; not live POKT network evidence.",
+    "thresholdNotice": "Exploratory display rules, not certified reliability thresholds.",
+    "limitations": [
+      "Selection does not reserve traffic.",
+      "The equal-share amount is a comparison, not promised income.",
+      "Earnings differences can reflect routing, request mix, infrastructure, geography, claiming and settlement.",
+      "Uncertainty ranges do not correct missing data, source bias or dependence between days."
+    ]
+  }
+}

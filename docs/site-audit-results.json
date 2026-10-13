@@ -1,0 +1,31 @@
+{
+  "asOfDate": "2026-10-10",
+  "snapshotId": "live-7d282134db50c264",
+  "services": [
+    "arb-one",
+    "base",
+    "bsc",
+    "eth",
+    "opbnb",
+    "poly",
+    "robinhood",
+    "solana"
+  ],
+  "periods": [
+    "7",
+    "14",
+    "30"
+  ],
+  "status": "passed",
+  "serviceSubsetCases": 765,
+  "historicalScopeCases": 168,
+  "independentFrameChecks": 48552,
+  "additivePartitionCases": 5,
+  "controllerViews": 14,
+  "seconds": 100.28,
+  "limits": [
+    "No browser layout, native clipboard/download or native modal verification in this environment.",
+    "This finite matrix covers every nonempty subset of the eight services; it is not a proof of every possible filter combination.",
+    "Settlement expansion is a separate live proof and does not silently change the sampled coverage denominator."
+  ]
+}

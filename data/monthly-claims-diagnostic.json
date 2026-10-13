@@ -1,0 +1,428 @@
+{
+  "diagnosticVersion": "monthly-claims-check-1.0",
+  "productSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "period": {
+    "start": "2026-09-06T00:00:00Z",
+    "endExclusive": "2026-10-06T00:00:00Z",
+    "timezone": "UTC"
+  },
+  "cutoff": 955836,
+  "completedAt": "2026-10-10T16:59:14.453387Z",
+  "monthlyWindowDefinition": "Session end height from first block at/after UTC start to before first block at/after UTC endExclusive. Settlement block <= original cutoff.",
+  "sampleDefinition": "The exact 4,080 session IDs saved in the website's monthly product.",
+  "notice": "Diagnostic counts do not change original payout amounts, denominators, earnings comparisons or ranks.",
+  "boundaryBlocks": {
+    "start": {
+      "height": 909560,
+      "timestamp": "2026-09-06T00:00:59.079",
+      "requestedUTC": "2026-09-06T00:00:00Z",
+      "bracketBlocks": 10
+    },
+    "end": {
+      "height": 952159,
+      "timestamp": "2026-10-06T00:00:09.02",
+      "requestedUTC": "2026-10-06T00:00:00Z",
+      "bracketBlocks": 11
+    }
+  },
+  "summary": {
+    "checkedGroups": 34,
+    "originalNeverCoveredGroupsChecked": 19,
+    "neverCoveredWithMonthlyClaims": 0,
+    "groupsWithChangedSampledCounts": 0,
+    "monthlyClaimRecords": 851096,
+    "originalSampledClaimRecords": 47880,
+    "recheckedSampledClaimRecords": 47880,
+    "findings": {
+      "sampled-index-count-agrees": 15,
+      "no-indexed-monthly-claims": 19
+    }
+  },
+  "snapshotId": "live-7d282134db50c264",
+  "rawDiagnosticSha256": "d3bb39f3d211b3e70113b7e2d5457748cf30a437a3ee857c531d70b353c01c18",
+  "indexerMetadata": {
+    "lastProcessedHeight": 958897,
+    "chain": "pocket"
+  },
+  "requestCount": 37,
+  "httpStatusCounts": {
+    "200": 37
+  },
+  "elapsedSeconds": 39.52,
+  "groups": [
+    {
+      "serviceId": "arb-one",
+      "applicationId": "pokt14mpsqly7xyyn4hpcaelmn49dq4pkws9wr7fh6f",
+      "originalCoveredSessions": 98,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 185,
+      "recheckedSampledClaimCount": 185,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 3181,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "arb-one",
+      "applicationId": "pokt1fyv5927jgpfgmw3uscfgweghp3u9lvfyhsv3zs",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "arb-one",
+      "applicationId": "pokt1mah7e8zyqs0p60qvwdydc7kaej5sm3sjs7um0a",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5622,
+      "recheckedSampledClaimCount": 5622,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 99818,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "arb-one",
+      "applicationId": "pokt1z8vg7yr3hcy89f4vpjzfcy7hmp9gr0v6wrdrnz",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "base",
+      "applicationId": "pokt17txmy8khx0p586ccj4j963t5n03vzn8sr7e6ly",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "base",
+      "applicationId": "pokt18gnh7tenrxfne25daxxs2qrdxu0e0h4nd4kc9g",
+      "originalCoveredSessions": 75,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 111,
+      "recheckedSampledClaimCount": 111,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 2002,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "base",
+      "applicationId": "pokt1g7t2qhcknmfflvpjplcmnpg3x8gecply80ezpl",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "base",
+      "applicationId": "pokt1ktwsw8cht4hjyt2ngy85pqmf6wmf9429uwhgwe",
+      "originalCoveredSessions": 110,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 803,
+      "recheckedSampledClaimCount": 803,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 14198,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "base",
+      "applicationId": "pokt1sflq0twpgkch8sehp2cek97qsh5ew30haevnp8",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5630,
+      "recheckedSampledClaimCount": 5630,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 100567,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "bsc",
+      "applicationId": "pokt1pf3wvd7v5g5qk56j37uqqsq8t8vnhms5zghpfm",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5573,
+      "recheckedSampledClaimCount": 5573,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 99291,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "bsc",
+      "applicationId": "pokt1qn3fsxsq6qyd47nh7alnrzt7xjc5qm8paw38gl",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "bsc",
+      "applicationId": "pokt1uuq9lmkdd0ufg7jqgm6ueavvkstswzcmsw40z4",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt13tcrxzdfcsjzkut2e9q3d5y96zuf3pa4s5rhf4",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt185tgfw9lxyuznh9rz89556l4p8dshdkjd5283d",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5554,
+      "recheckedSampledClaimCount": 5554,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 98518,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt18q8l6dk67lk8w0mz3xgp7qwu6h3km7f522gddg",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt1g5k3vqh9kkk9sxlry69ghlks9qan2xwc7fluzm",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt1qj0psa8v9sszmaljvjx5wtvf8fxpq3vr4u2jh5",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt1uzdsuerd7ccpkd5xdm83jhmv4g2rfsr223vf70",
+      "originalCoveredSessions": 78,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 122,
+      "recheckedSampledClaimCount": 122,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 2260,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt1vy3ksaqts972y8m0dd3u4vezd3896r9krmhl4r",
+      "originalCoveredSessions": 119,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 1149,
+      "recheckedSampledClaimCount": 1149,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 19809,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "eth",
+      "applicationId": "pokt1wdzhp2sc0lllds62tlud08s6m3y0aalq86vunw",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "opbnb",
+      "applicationId": "pokt1ddm6jkudxy5x2eyydd4z8x2n649ymk5wg6g5q9",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "opbnb",
+      "applicationId": "pokt1r5ru40u25yk076h2ap9aelyvh9e5p0snh0zlez",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5676,
+      "recheckedSampledClaimCount": 5676,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 100959,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "opbnb",
+      "applicationId": "pokt1t787eh3punnjrmp8j5metng52jpnvzu0s4nmwz",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "poly",
+      "applicationId": "pokt1h3rls8p6xggqrefc87sph3rl7vn0s2gp4ye4rt",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "poly",
+      "applicationId": "pokt1hufj6cdgu83dluput6klhmh54vtrgtl3drttva",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5619,
+      "recheckedSampledClaimCount": 5619,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 100073,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "poly",
+      "applicationId": "pokt1z8la3qamc8hvtxv56vsrjdepel09evk6lhvd9n",
+      "originalCoveredSessions": 99,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 852,
+      "recheckedSampledClaimCount": 852,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 14116,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "robinhood",
+      "applicationId": "pokt12ufw600ue7gkv6nnm4xu7asxu664unlukzy74u",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5634,
+      "recheckedSampledClaimCount": 5634,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 100632,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "robinhood",
+      "applicationId": "pokt1c2nndz024peywp238h0auyczcqx4quwq4xr0pl",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1hhv2vj0sktz2rvp6ms5mdtw4cgaj50h8u30ycj",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1la0mzur79w7vgk2stun4llqlgaqa2f3rg20jvj",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1xa97a68xklumpyt5q90zmuj6nrp7rpqcu6qfa2",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1xd8jrccxtlzs8svrmg6gukn7umln7c2ww327xx",
+      "originalCoveredSessions": 120,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 5129,
+      "recheckedSampledClaimCount": 5129,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 91915,
+      "finding": "sampled-index-count-agrees"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1z8hac4plg4p0xatr93jgtlvmqqp4yzp9r6as2s",
+      "originalCoveredSessions": 0,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 0,
+      "recheckedSampledClaimCount": 0,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 0,
+      "finding": "no-indexed-monthly-claims"
+    },
+    {
+      "serviceId": "solana",
+      "applicationId": "pokt1zp90apxzym50uu6jt89p30urd69gfp7nu2u2w9",
+      "originalCoveredSessions": 113,
+      "sampledSessions": 120,
+      "originalSampledClaimCount": 221,
+      "recheckedSampledClaimCount": 221,
+      "sampledClaimCountDifference": 0,
+      "monthlyClaimCount": 3757,
+      "finding": "sampled-index-count-agrees"
+    }
+  ]
+}

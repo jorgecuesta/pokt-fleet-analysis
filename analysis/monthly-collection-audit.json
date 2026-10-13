@@ -1,0 +1,119 @@
+{
+  "status": "complete",
+  "days": 30,
+  "services": [
+    "arb-one",
+    "base",
+    "bsc",
+    "eth",
+    "opbnb",
+    "poly",
+    "robinhood",
+    "solana"
+  ],
+  "samplePoints": 120,
+  "serviceObservations": 960,
+  "cutoff": 955836,
+  "coverage": {
+    "samplePoints": 120,
+    "sessions": 4080,
+    "settledClaims": 47880,
+    "comparableSessions": 1652,
+    "unverifiedPayoutClaims": 0
+  },
+  "endpointParsing": {
+    "schemaVersion": 2,
+    "processorVersion": "phase2-1.2",
+    "suffixListSource": "https://publicsuffix.org/list/public_suffix_list.dat",
+    "suffixListSha256": "ba7d836c0ea57a8bcf9f1fcb868066a7554bed029b441ecc6204ad8494a32612",
+    "includesPrivateSuffixes": true,
+    "endpointCount": 6698,
+    "suffixListVersion": "2026-10-07_07-28-19_UTC",
+    "accountValidation": "Pocket Bech32 prefix, checksum, padding and 20-byte account payload; role comes from registry fields.",
+    "invalidEndpointCount": 1,
+    "identityRule": "Recorded service-specific endpoint association; business ownership, location and physical servers are not inferred."
+  },
+  "perServicePayoutEvidence": [
+    {
+      "serviceId": "arb-one",
+      "sessions": 480,
+      "comparableSessions": 218,
+      "unknownSessions": 262,
+      "payoutCoverage": 0.45416666666666666,
+      "unknownWithoutIndexedClaims": 262,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "base",
+      "sessions": 600,
+      "comparableSessions": 305,
+      "unknownSessions": 295,
+      "payoutCoverage": 0.5083333333333333,
+      "unknownWithoutIndexedClaims": 295,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "bsc",
+      "sessions": 360,
+      "comparableSessions": 120,
+      "unknownSessions": 240,
+      "payoutCoverage": 0.3333333333333333,
+      "unknownWithoutIndexedClaims": 240,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "eth",
+      "sessions": 960,
+      "comparableSessions": 317,
+      "unknownSessions": 643,
+      "payoutCoverage": 0.3302083333333333,
+      "unknownWithoutIndexedClaims": 643,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "opbnb",
+      "sessions": 360,
+      "comparableSessions": 120,
+      "unknownSessions": 240,
+      "payoutCoverage": 0.3333333333333333,
+      "unknownWithoutIndexedClaims": 240,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "poly",
+      "sessions": 360,
+      "comparableSessions": 219,
+      "unknownSessions": 141,
+      "payoutCoverage": 0.6083333333333333,
+      "unknownWithoutIndexedClaims": 141,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "robinhood",
+      "sessions": 240,
+      "comparableSessions": 120,
+      "unknownSessions": 120,
+      "payoutCoverage": 0.5,
+      "unknownWithoutIndexedClaims": 120,
+      "unknownWithUnverifiedClaims": 0
+    },
+    {
+      "serviceId": "solana",
+      "sessions": 720,
+      "comparableSessions": 233,
+      "unknownSessions": 487,
+      "payoutCoverage": 0.3236111111111111,
+      "unknownWithoutIndexedClaims": 487,
+      "unknownWithUnverifiedClaims": 0
+    }
+  ],
+  "notice": "Unknown payouts remain unknown. Complete collection does not guarantee adequate earnings evidence.",
+  "productSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "productSchemaVersion": 1,
+  "wireCodec": "supplier-indices-v1",
+  "suppliers": 4500,
+  "endpoints": 6698,
+  "sessions": 4080,
+  "structuralChecks": "passed",
+  "validatedAt": "2026-10-10T09:34:11.398101Z"
+}
