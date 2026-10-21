@@ -25,7 +25,7 @@ def cell(kind, source, **meta):
 
 
 def main():
-    cells = [cell('markdown', '''# Pocket fleet analysis: collect, investigate, then scale
+    cells = [cell('markdown', '''# Fleet Observatory: collect, investigate, then scale
 
 **One notebook. Start offline, then 7 → 14 → 30 days.** All collection code is readable in the appendices and embedded here; no companion download is needed.
 

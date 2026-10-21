@@ -454,12 +454,13 @@ body{background:white}
 }
 
 
-/* Pocket visual language and the refined analysis controls. */
+/* Independent product header and refined analysis controls. */
 body{overflow-x:clip}
 .topbar{background:#0f1419;color:white}
 .site-header{height:92px;border-bottom:1px solid #ffffff15}
-.brand{gap:20px;color:white}
-.pocket-wordmark{display:block;width:136px;height:auto}
+.brand{gap:12px;color:white}
+.brand .brand-name{color:white;max-width:170px}
+.fleet-mark{display:block;width:36px;height:36px;flex-shrink:0}
 .brand-caption{color:#cad1db;font-size:13px;border-left:1px solid #ffffff30;padding-left:20px;margin:0}
 .header-help{color:#cad1db}
 .header-help:hover{color:white}
@@ -565,7 +566,8 @@ body{overflow-x:clip}
 
 @media(max-width:650px){.site-header{height:75px}
 .brand{gap:12px}
-.pocket-wordmark{width:102px}
+.fleet-mark{width:30px;height:30px}
+.brand .brand-name{font-size:15px;max-width:90px}
 .brand-caption{font-size:11px;padding-left:12px;max-width:74px;line-height:1.25}
 .header-right{gap:0}
 .demo-badge{font-size:9px;padding:6px;gap:5px}

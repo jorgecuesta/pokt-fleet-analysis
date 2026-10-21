@@ -1,6 +1,6 @@
-# Start here: review the finished month, then publish
+# Start here: Fleet Observatory
 
-Prepared 13 October 2026. This refined package contains the current monthly product, clearer evidence labels, the Past performance tab, specific sparse-data reasons, and the source and manual setup guide. Collection is finished. **Do not rerun the old analysis or collection notebook to complete this setup.**
+Branding updated 21 October 2026. See [the neutral-branding update guide](docs/neutral-branding-update.md) to publish this version. The setup instructions below describe the original 13 October package. This refined package contains the current monthly product, clearer evidence labels, the Past performance tab, specific sparse-data reasons, and the source and manual setup guide. Collection is finished. **Do not rerun the old analysis or collection notebook to complete this setup.**
 
 ## What changed in this refinement
 
@@ -21,7 +21,7 @@ Prepared 13 October 2026. This refined package contains the current monthly prod
 
 If double-clicking does not work, click the project folder's address bar, type `cmd` and press Enter. In that window run `py -3 scripts\review_locally.py`. If your existing Python command is `python`, use `python scripts\review_locally.py`. The script prints the URL, normally `http://127.0.0.1:8000/`; use the exact printed URL. It tries another nearby port if 8000 is already occupied.
 
-You may instead review [the private published Site](https://pokt-fleet-analysis-phase-one.brawny-birch-3847.chatgpt.site/). The local copy lets you also verify exactly what will go to Vercel.
+The local copy lets you verify the neutral branding before publishing it to the existing Vercel deployment.
 
 ## Six browser checks
 

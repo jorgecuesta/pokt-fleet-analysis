@@ -3,6 +3,7 @@
 Run after a successful build/check. No account changes or data collection.
 """
 from pathlib import Path
+from datetime import date
 import argparse
 import hashlib
 import json
@@ -40,21 +41,21 @@ def package(output, source_commit=None):
     if not audit.get('monthlyActivationReady') or not audit.get('fortnightReceiptVerified'):
         raise ValueError('The monthly and prior-stage integration must be verified first.')
     paths = source_paths()
-    manifest = {'version': 1, 'preparedAt': '2026-10-13', 'sourceCommit': source_commit,
-        'notice': 'Refined monthly product: Past performance, explicit earnings/selection evidence and plain availability reasons. Native browser review and public account setup remain pending.',
+    manifest = {'version': 1, 'preparedAt': date.today().isoformat(), 'sourceCommit': source_commit,
+        'notice': 'Fleet Observatory: independent product branding with separate recorded earnings and sampled selection evidence. Publishing this source is a separate step.',
         'window': audit['sourceWindow'], 'claims': audit['claims'], 'sessions': audit['sessions'],
         'files': {str(p.relative_to(ROOT)).replace('\\', '/'): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_name(output.name + '.building')
     with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
         for path in paths:
-            archive.write(path, 'pokt-fleet-analysis/' + path.relative_to(ROOT).as_posix())
-        archive.writestr('pokt-fleet-analysis/HANDOFF_MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
+            archive.write(path, 'fleet-observatory/' + path.relative_to(ROOT).as_posix())
+        archive.writestr('fleet-observatory/HANDOFF_MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
     with zipfile.ZipFile(temporary) as archive:
         if archive.testzip() is not None:
             raise ValueError('ZIP CRC validation failed.')
         for relative, digest in manifest['files'].items():
-            if hashlib.sha256(archive.read('pokt-fleet-analysis/' + relative)).hexdigest() != digest:
+            if hashlib.sha256(archive.read('fleet-observatory/' + relative)).hexdigest() != digest:
                 raise ValueError('Packaged file differs: ' + relative)
     temporary.replace(output)
     return {'file': str(output), 'fileCount': len(paths) + 1, 'bytes': output.stat().st_size,
@@ -63,7 +64,7 @@ def package(output, source_commit=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=ROOT / 'releases/pokt_fleet_analysis_refined_2026-10-13.zip')
+    parser.add_argument('--output', type=Path, default=ROOT / 'releases/fleet_observatory_source.zip')
     parser.add_argument('--source-commit', help='Verified source commit returned by the source workflow; optional for a local rebuild.')
     args = parser.parse_args()
     print(json.dumps(package(args.output, args.source_commit), indent=2))

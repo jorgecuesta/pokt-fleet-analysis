@@ -1,4 +1,6 @@
-# Pocket fleet analysis
+# Fleet Observatory
+
+An independent research prototype, not an official network product.
 
 Analyse historical Pocket Supplier fleets by owner address, Supplier, hostname or recorded endpoint domain. Earnings and selection have separate evidence sets, visibly explained throughout the product.
 
@@ -23,7 +25,8 @@ Open [START_HERE.md](START_HERE.md) for the current package, the Python local-re
 - [Collection evidence](docs/data-collection.md), [terminology](docs/terminology.md) and [endpoint parsing](docs/endpoint-model.md)
 - [Browser review checklist](docs/review-guide.md)
 
-Public GitHub, Vercel and the Ramiro handoff remain deferred. The existing hosted Site remains owner-private.
+Source: https://github.com/mykyal/pokt-fleet-analysis. Website: https://pokt-fleet-analysis.vercel.app/.
+The neutral branding in this source update appears on the website after it is committed, pushed and successfully deployed.
 
 ## Build and verify
 

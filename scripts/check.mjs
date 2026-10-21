@@ -8,12 +8,14 @@ import {webcrypto,createHash} from 'node:crypto';
 const root=dirname(dirname(fileURLToPath(import.meta.url)));
 const html=await readFile(join(root,'dist/index.html'),'utf8');
 assert(!html.includes('/* INLINE_'),'Build placeholders must be replaced.');
-assert(!/__RUBIK_DATA__|__POCKET_LOGO__/.test(html),'Brand assets must be embedded.');
+assert(!/__RUBIK_DATA__|__FLEET_MARK__/.test(html),'Brand assets must be embedded.');
 assert(html.includes('data:font/woff2;base64,'));
-assert(html.includes('data:image/png;base64,'));
+assert(html.includes('data:image/svg+xml;base64,'));
+assert(html.includes('<title>Fleet Observatory</title>'));
+assert(!/pocket-wordmark|pocket-logo|__POCKET_LOGO__|Pocket Network Foundation/.test(html),'The current bundle must use independent branding.');
 assert(html.includes('SIL OPEN FONT LICENSE Version 1.1'));
 assert.equal((await readFile(join(root,'src/assets/rubik-latin-variable.woff2'))).subarray(0,4).toString(),'wOF2');
-assert.equal((await readFile(join(root,'src/assets/pocket-logo-white.png'))).subarray(1,4).toString(),'PNG');
+assert((await readFile(join(root,'src/assets/fleet-mark.svg'),'utf8')).startsWith('<svg '));
 const code=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new Script(code);
 // Exercise the shipped gzip bootstrap for both datasets without claiming a

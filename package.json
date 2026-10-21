@@ -1,9 +1,9 @@
 {
-  "name": "pokt-fleet-analysis-phase1",
+  "name": "fleet-observatory",
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Pocket fleet analysis with recorded mainnet evidence and an explicit fictional preview.",
+  "description": "Independent historical Supplier fleet analysis with recorded evidence and an explicit fictional preview.",
   "scripts": {
     "fixtures": "node scripts/generate-fixtures.mjs",
     "contract": "node scripts/write-contract.mjs",

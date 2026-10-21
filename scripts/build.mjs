@@ -14,7 +14,7 @@ const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const jsonCode=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const [template,styles,raw,logo,font,fontLicense,loader,...modules]=await Promise.all([
   read('src/index.html'),read('src/styles.css'),read('data/fictional-snapshot.json'),
-  readFile(join(root,'src/assets/pocket-logo-white.png')),readFile(join(root,'src/assets/rubik-latin-variable.woff2')),read('src/assets/RUBIK-OFL.txt'),
+  readFile(join(root,'src/assets/fleet-mark.svg')),readFile(join(root,'src/assets/rubik-latin-variable.woff2')),read('src/assets/RUBIK-OFL.txt'),
   read('src/snapshot-loader.js'),...['math','settlements','engine','adapter','export-download','app'].map(name=>read(`src/${name}.js`))
 ]);
 const fixture=JSON.parse(raw);
@@ -68,14 +68,14 @@ if(live){
 }
 const css=styles.replace('__RUBIK_DATA__',`data:font/woff2;base64,${font.toString('base64')}`)+`\n/* Embedded Rubik font license:\n${fontLicense}\n*/`;
 const bootstrap=liveBytes?`const requested=new URLSearchParams(location.search).get('dataset');const preview=requested==='preview'||(!requested&&new URLSearchParams(location.hash.slice(1)).get('snapshot')?.startsWith('illustrative-'));const SNAPSHOT_DATA=await decodeSnapshot(preview?'fictional-snapshot':'live-snapshot');`:`const preview=true;const SNAPSHOT_DATA=await decodeSnapshot('fictional-snapshot');`;
-const code=`(async()=>{'use strict';\n${loader.replace(/^export /gm,'')}\nconst MONTHLY_CLAIM_CHECK=${jsonCode(monthlyCheck)};\nconst SETTLEMENT_RECEIPT=${jsonCode(receipt)};\nconst SETTLEMENT_PROOF=${jsonCode(proof)};\n${bootstrap}\nconst SAVED_SETTLEMENT_ASSET=${jsonCode(asset)};\nconst SETTLEMENT_DATA=!preview&&SAVED_SETTLEMENT_ASSET?await loadSavedSettlements(SAVED_SETTLEMENT_ASSET.filename,SAVED_SETTLEMENT_ASSET.sha256):null;\nconst SETTLEMENT_TABLES=!preview&&SAVED_SETTLEMENT_ASSET?await decodeSnapshot('settlement-tables'):null;\n${modules.map(source=>source.replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'')).join('\n')}\n})().catch(error=>{document.getElementById('app').textContent='Could not open this snapshot. '+error.message;});`.replaceAll('__POCKET_LOGO__',`data:image/png;base64,${logo.toString('base64')}`);
+const code=`(async()=>{'use strict';\n${loader.replace(/^export /gm,'')}\nconst MONTHLY_CLAIM_CHECK=${jsonCode(monthlyCheck)};\nconst SETTLEMENT_RECEIPT=${jsonCode(receipt)};\nconst SETTLEMENT_PROOF=${jsonCode(proof)};\n${bootstrap}\nconst SAVED_SETTLEMENT_ASSET=${jsonCode(asset)};\nconst SETTLEMENT_DATA=!preview&&SAVED_SETTLEMENT_ASSET?await loadSavedSettlements(SAVED_SETTLEMENT_ASSET.filename,SAVED_SETTLEMENT_ASSET.sha256):null;\nconst SETTLEMENT_TABLES=!preview&&SAVED_SETTLEMENT_ASSET?await decodeSnapshot('settlement-tables'):null;\n${modules.map(source=>source.replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'')).join('\n')}\n})().catch(error=>{document.getElementById('app').textContent='Could not open this snapshot. '+error.message;});`.replaceAll('__FLEET_MARK__',`data:image/svg+xml;base64,${logo.toString('base64')}`);
 new Script(code,{filename:'fleet-analysis-bundle.js'});
 if(/<\/script/i.test(code))throw new Error('Unsafe script terminator in the bundle.');
-const html=template.replace('/* INLINE_STYLES */',()=>css).replace('/* INLINE_DATA */',()=>JSON.stringify(gzipSync(JSON.stringify(fixture)).toString('base64')))
+const html=template.replaceAll('__FLEET_MARK__',`data:image/svg+xml;base64,${logo.toString('base64')}`).replace('/* INLINE_STYLES */',()=>css).replace('/* INLINE_DATA */',()=>JSON.stringify(gzipSync(JSON.stringify(fixture)).toString('base64')))
   .replace('/* INLINE_LIVE_DATA */',()=>JSON.stringify(liveBytes?.toString('base64')??null))
   .replace('/* INLINE_SETTLEMENT_TABLES */',()=>JSON.stringify(settlementTables?.toString('base64')??null)).replace('/* INLINE_APPLICATION */',()=>code);
 if(Buffer.byteLength(html)>24*1048576)throw new Error('Static HTML exceeds the safe 24 MiB file budget.');
-if(/__RUBIK_DATA__|__POCKET_LOGO__/.test(html))throw new Error('Unresolved brand asset.');
+if(/__RUBIK_DATA__|__FLEET_MARK__/.test(html))throw new Error('Unresolved brand asset.');
 await mkdir(join(root,'dist'),{recursive:true});
 // Remove only obsolete generated settlement assets, preventing stale deployment bytes.
 for(const name of await readdir(join(root,'dist')))if(/^settlements-[a-f0-9]{16}\.bin$/.test(name)&&name!==asset?.filename)await unlink(join(root,'dist',name));
