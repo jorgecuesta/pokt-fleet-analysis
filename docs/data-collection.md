@@ -1,6 +1,6 @@
 # Collection, evidence and next data work
 
-Updated 13 October 2026. The original-sample sections below describe the first collection; the completed separate settlement collection is summarised at the end. The current product is the completed month supplied from the user's accessible machine. The original collector and monthly runner are unchanged. The app reads a saved snapshot, with no browser API requests or automatic refresh.
+Updated 13 October 2026. The original-sample sections below describe the first collection; the completed separate settlement collection is summarised at the end. The current product is the completed month supplied from the user's accessible machine, re-collected from the pocketdex session catalog on 27 October 2026 (see [Sources](#sources-since-27-october-2026)). The app reads a saved snapshot, with no browser API requests or automatic refresh.
 
 ## The completed frame
 
@@ -18,7 +18,7 @@ Updated 13 October 2026. The original-sample sections below describe the first c
 | Sessions / settled Supplier claims | 4,080 / 47,880 |
 | Comparable / unknown sessions | 1,652 / 2,428 |
 | Unverified returned payout claims | 0 |
-| Product checksum | 059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57 |
+| Product checksum | feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088 |
 
 The eight-service budget was chosen before inspecting fleet earnings. The original seven-day screen listed 264 registered service metadata entries; the selected services covered 86.1% of indexed settled estimated compute units, below the intended 95% target. That screening-week share does not measure all traffic or this month's traffic. The fixed list preserves the cohort while completing the backfill.
 
@@ -28,9 +28,9 @@ This frame samples one historical session per eligible Application/service at ea
 
 1. Screen services and freeze the mature end boundary, indexer cutoff and catalogue.
 2. Resolve each observation timestamp to an archive block and historical shared/service parameters.
-3. Download Supplier/Application registries once per shared point; derive each service's eligibility and session roster. Reconstruction uses the pinned supported protocol commit and reconciles against archive REST checks.
+3. Read the staked Suppliers once per shared point, as staked before the start of the session covering it; read the sessions covering the point and their rosters from the session catalog. Every eligible population must equal the sessions' candidate count.
 4. Preserve historical owner membership and service-specific endpoints. Parse account/URL components, retaining the pinned suffix list, hashes, literal labels and invalid records.
-5. Deduplicate sampled sessions and query paginated settled claims in bounded batches. Attribute verified Supplier distributions and reconcile transfer totals. HTTP success still requires source/product validation.
+5. Deduplicate sampled sessions; each roster member that was paid or settled for zero is one settled claim, with its Supplier-shareholder payout. HTTP success still requires source/product validation.
 6. Write the compact product only after all monthly observations pass. Unknown outcomes remain explicit. Produce the audit and retain the raw cache separately.
 
 The local invocation recorded **550 HTTP attempts, 1,120,869,894 received response bytes and 1,105.91 seconds** (about 18 minutes 26 seconds). These describe that invocation, not a future benchmark. The supplied log contains 558 HTTP 200 records: eight diagnostic requests plus 550 monthly requests. No transport failure is recorded.
@@ -76,7 +76,7 @@ The 15 groups with indexed monthly settlements have 1,652 covered out of 1,800 s
 4. Expand to all eight services and the full month once reconciliation succeeds. Preserve raw evidence separately and ship compact derived data within the website's budget.
 5. Review how registered selection opportunity and indexed settlement evidence are presented, keeping their different denominators explicit. Do not turn no claim into a verified zero, or drop groups merely to unlock rankings.
 
-The claim-first implementation is now in `collector/settlement_collect.py`, composing the unchanged original HTTP client/parser. The self-contained `pokt_settlement_collection.ipynb` includes all source, frozen reference data, a successful Ethereum seven-day proof and 62 offline failure/reconciliation tests. The real pilot passed 26,888 claims, 1,327 historical rosters and 74 exact overlapping distribution/owner/endpoint checks; the paired investigation, fourteen-day stage and full month have now completed. See [the site audit](site-audit.md) and its proof receipt. Lossless membership packing reduces the measured pilot product by 34.5% without discarding any record. The expanded settlement dataset is installed separately for earnings; the sampled selection evidence is unchanged. The original four-time monthly runner remains unchanged. Repeating the same month, an eight-time sampling grid or the completed diagnostic is not the next action for the main gap found here.
+The claim-first implementation is now in `collector/settlement_collect.py`, composing the unchanged original HTTP client/parser. The self-contained `pokt_settlement_collection.ipynb` includes all source, frozen reference data, a successful Ethereum seven-day proof and 65 offline failure/reconciliation tests. The real pilot passed 26,888 claims, 1,327 historical rosters and 74 exact overlapping distribution/owner/endpoint checks; the paired investigation, fourteen-day stage and full month have now completed. See [the site audit](site-audit.md) and its proof receipt. Lossless membership packing reduces the measured pilot product by 34.5% without discarding any record. The expanded settlement dataset is installed separately for earnings; the sampled selection evidence is unchanged. The original four-time monthly runner remains unchanged. Repeating the same month, an eight-time sampling grid or the completed diagnostic is not the next action for the main gap found here.
 
 ## Hosting and later handoff
 
@@ -89,3 +89,20 @@ Hold the Ramiro delivery until the product and evidence are ready. Later include
 ## 13 October continuation
 
 The seven-day paired investigation passed: 142 indexed claims matched checked on-chain events without distribution differences. Its bounded negative result does not establish the uncovered-group cause. The fourteen-day stage returned 397,714 claims / 13,415 settled sessions; the month returned 851,096 claims / 29,448 settled sessions. All returned monthly distributions are attributable, all original sampled counts and covered overlaps match, and every fortnight record matches the month. The exact session-end rosters supply historical ownership and service endpoints. The compact month is now installed and saved with the project; no repeat download is required. Original sampled selection and its unknown payouts remain unchanged. See [the integration explanation](settlement-integration.md).
+
+## Sources since 27 October 2026
+
+The indexer no longer serves `eventClaimSettleds` or `modToAcctTransfers`, so every collector now reads the pocketdex session catalog on `data.pocket.network/graphql` (`collector/session_catalog.py`):
+
+| Data | Function |
+|---|---|
+| Sessions, rosters, member owners, payouts (V and each member's share), settlement heights | `getSessionRostersJson` |
+| Members' endpoints | `getSuppliersConfigHistoryJson`: the config declared before the session start (a change takes effect at the next session) |
+| Eligible Suppliers and owners at a sample point | `getStakedSuppliersList`, at the height before the covering session's start |
+| Session cap, session length and settlement offsets | `getParamHistoryList` |
+| Service names and compute units per relay | `services(blockHeight: cutoff)` |
+| Monthly claim counts (diagnostic notebook) | `getNetworkSessionsJson`, corrected at both month edges with `getSessionRostersJson` |
+| UTC boundaries and block times | `blocks` |
+
+Each service's census pages must hold every settled seat that `getNetworkSessionsJson` totals for the same session starts, or the run stops. The re-collection reproduced the previous month exactly: 29,448 sessions, 851,096 claims, every pool, payout, roster, owner and endpoint set, and the 960 populations, 4,080 sampled sessions and 1,652 covered sessions. Known differences: sampled rosters are listed by address, not in the chain's selection order (only membership is used); `indexedEstimatedRelays` is null, because the catalog has no per-session estimated relays; the service `svc-poktminer` is named "delete" at the cutoff height; and 32 pilot session end times lose sub-millisecond digits. The paired on-chain investigation still uses the archive RPC `block_results`, as an independent check.
+

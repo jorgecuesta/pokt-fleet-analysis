@@ -36,8 +36,8 @@ The importer checks lossless canonical/packed equality, integer payouts, histori
 ## Automated verification
 
 - 80 JavaScript tests, including eight actual-month integration tests and three compressed-download round-trip/failure checks.
-- 101 Python tests for collection, analysis, resumed stages, attribution, historical rosters and import gates.
-- 62 standalone notebook tests in a fresh offline execution; no API calls.
+- 106 Python tests for collection, analysis, resumed stages, attribution, historical rosters and import gates.
+- 65 standalone notebook tests in a fresh offline execution; no API calls.
 - 167 original illustrative/mainnet report-schema checks, plus shipped default/preview bootstrap checks.
 - All 255 nonempty service subsets under each 7/14/30-day period: 765 actual monthly views with independently summed pools and no duplicate sessions.
 - All 198 monthly owner groups against independent Python arithmetic; every stored owner/domain row across eight services and three periods.

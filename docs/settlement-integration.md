@@ -74,6 +74,6 @@ The following steps explain the optional importer. The current project already c
 
 Actual monthly checks cover all 765 service-subset/period views, every precomputed owner/domain row, all 198 owner partitions against independent exact Python arithmetic, all 48 F-sort controller cases, endpoint ownership/service intersections, sparse and missing groups, pagination and complete exports. Actual Kleomedes historical tests are available for all eight services; short periods deliberately remain unavailable. See [the current site audit](site-audit.md).
 
-The suite includes 80 JavaScript tests, 101 Python tests, 62 offline notebook tests and 167 original report checks. Complete monthly downloads use compressed JSON without omitting any evidence. Original selection metrics and collector/runner hashes are unchanged.
+The suite includes 80 JavaScript tests, 106 Python tests, 65 offline notebook tests and 167 original report checks. Complete monthly downloads use compressed JSON without omitting any evidence. Original selection metrics and collector/runner hashes are unchanged.
 
 Native browser layout, focus trapping, clipboard, downloads and served-asset review remain open. Public GitHub, Vercel and Ramiro handoff remain deferred until that review. The 19 absent-index groups still have an unresolved cause; no payout has been invented for them.

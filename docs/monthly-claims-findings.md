@@ -1,5 +1,7 @@
 # Monthly claim evidence · 10 October 2026
 
+**27 October 2026:** the check was re-sourced onto the pocketdex session catalog, because the indexer no longer serves the claim records it queried. The re-run made 39 requests (all HTTP 200) and found the same 34 group counts, 851,096 monthly claims and 47,880 sampled claims. The product SHA-256 is now `feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088`. The record below is the original 10 October run.
+
 The 30-day sampling frame is complete. The uploaded monthly diagnostic confirms that the main earnings gap is a lack of indexed monthly settlements for registered Application/service groups at the saved cutoff. It does not show a failed monthly download.
 
 The exact month is 6 September to 6 October 2026 exclusive, UTC. The original product SHA-256 remains `059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57`, with settlement cutoff 955,836. All 37 diagnostic requests returned HTTP 200 and completed in 39.52 seconds on the user's machine. The reported indexer head was 958,897.

@@ -32,7 +32,7 @@ F is actual gross distributions / equal-share opportunity from the same sessions
 
 ## Verified automatically and remaining limits
 
-The suites cover 80 JavaScript tests, 101 Python tests, 62 offline notebook tests and 167 original report checks. Actual monthly checks cover 765 service-subset/period views, 198 owner groups against independent Python arithmetic, every owner/domain table row, all 48 comparison-sort combinations, nested filters, predictions, pagination, exports and gzip round trips.
+The suites cover 80 JavaScript tests, 106 Python tests, 65 offline notebook tests and 167 original report checks. Actual monthly checks cover 765 service-subset/period views, 198 owner groups against independent Python arithmetic, every owner/domain table row, all 48 comparison-sort combinations, nested filters, predictions, pagination, exports and gzip round trips.
 
 Controller tests use a DOM stub. Native browser rendering, focus, clipboard, file downloads and served-asset behaviour still need the checklist above. The required browser-control skill is unavailable in this environment; the [Sites rule](skill://plugin_connector_1p_689987207de08191979cf68eca2941c6/sites/SKILL.md) says to skip browser QA rather than improvise another browser-control path.
 

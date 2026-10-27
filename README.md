@@ -43,7 +43,7 @@ python -m http.server 8000 --directory dist
 
 Open `http://localhost:8000`. Serve the entire `dist` folder: the HTML loads the saved, content-addressed settlement binary from the same deployment and verifies its SHA-256 before use. Opening a downloaded HTML file alone cannot load that asset. Recent browsers with gzip stream support are required. Failed loading stops clearly rather than silently substituting sampled earnings. Every static asset is kept below 24 MiB.
 
-Checks include 80 JavaScript tests, 101 Python tests, 62 notebook offline tests and 167 original report-schema checks. Actual monthly integration covers all 765 service-subset/period combinations, all 198 owner partitions against independent Python integer/Fraction results, every precomputed owner/domain row, all 48 service/period/grouping F-sort combinations, historical membership, nested filters, predictions, pagination and complete exports. Controller tests use a DOM stub; actual browser layout and native interactions still need the checklist.
+Checks include 80 JavaScript tests, 106 Python tests, 65 notebook offline tests and 167 original report-schema checks. Actual monthly integration covers all 765 service-subset/period combinations, all 198 owner partitions against independent Python integer/Fraction results, every precomputed owner/domain row, all 48 service/period/grouping F-sort combinations, historical membership, nested filters, predictions, pagination and complete exports. Controller tests use a DOM stub; actual browser layout and native interactions still need the checklist.
 
 ## Interpret results
 
@@ -61,8 +61,8 @@ Large breakdowns calculate a visible page first. Financial group rows calculate 
 
 ## Collection notebooks
 
-`notebooks/pokt_settlement_collection.ipynb` contains all readable settlement modules, the frozen original reference, a successful seven-day proof and 62 offline tests. It starts with `MODE = "offline"`; live modes are `investigate`, `7d`, `14d` and `30d`. `REUSE_INCLUDED_PILOT = True` reuses the matching included proof. Keep its `pokt-settlement-work` folder beside the notebook to preserve resume caches. **The completed month is already installed; do not recollect it merely to publish.**
+`notebooks/pokt_settlement_collection.ipynb` contains all readable settlement modules, the frozen original reference, a successful seven-day proof and 65 offline tests. It starts with `MODE = "offline"`; live modes are `investigate`, `7d`, `14d` and `30d`. `REUSE_INCLUDED_PILOT = True` reuses the matching included proof. Keep its `pokt-settlement-work` folder beside the notebook to preserve resume caches. **The completed month is already installed; do not recollect it merely to publish.**
 
-The original collection, monthly analysis and claim-diagnostic notebooks are retained. The original collector, runner and pinned Public Suffix List are unchanged. The immutable sampled product SHA-256 is `059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57`; the installed packed settlement SHA-256 is `d24c43b4f040cdbffad57bb4698f43164063876721a581d15ec2f7e3a56c3fe0`.
+The original collection, monthly analysis and claim-diagnostic notebooks are retained. Since 27 October 2026 every collector reads the pocketdex session catalog on `data.pocket.network/graphql` ([sources](docs/data-collection.md#sources-since-27-october-2026)); the pinned Public Suffix List is unchanged. The sampled product SHA-256 is `feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088`; the installed packed settlement SHA-256 is `3b9b93120455802ae1cffefce5e8432173c7594745fde777e336ecbb4a7b6d97`.
 
 `python scripts/import-settlement-month.py /path/to/review-results.zip --check-only` independently verifies the completed ZIP without API requests or data mutation. Without `--check-only`, only a reconciled full month can be installed as separate settlement evidence. The original sample is never overwritten.
