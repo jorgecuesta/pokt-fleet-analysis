@@ -4,7 +4,7 @@ export function createSettlementSource(sampled, wire, receipt) {
   const config = wire?.config;
   if (wire?.codec !== 'membership-indices-v2' || wire.dataKind !== 'live') fail('unsupported codec');
   if (!config || config.cutoff !== sampled.liveSource.cutoff ||
-      config.referenceProductSha256 !== '059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57' ||
+      config.referenceProductSha256 !== 'feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088' ||
       !Number.isFinite(+new Date(config.start)) || !Number.isFinite(+new Date(config.endExclusive)) ||
       +new Date(config.start) < +new Date(sampled.period.start) ||
       +new Date(config.endExclusive) !== +new Date(sampled.period.endExclusive) ||

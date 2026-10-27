@@ -108,12 +108,12 @@
     }
   ],
   "notice": "Unknown payouts remain unknown. Complete collection does not guarantee adequate earnings evidence.",
-  "productSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "productSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088",
   "productSchemaVersion": 1,
   "wireCodec": "supplier-indices-v1",
   "suppliers": 4500,
   "endpoints": 6698,
   "sessions": 4080,
   "structuralChecks": "passed",
-  "validatedAt": "2026-10-10T09:34:11.398101Z"
+  "validatedAt": "2026-10-27T19:15:11.718891Z"
 }

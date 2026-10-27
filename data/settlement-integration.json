@@ -19,18 +19,18 @@
       "robinhood",
       "solana"
     ],
-    "membershipTime": "session-end archive height",
+    "membershipTime": "session catalog roster; owner and endpoints at session start",
     "scope": "all indexed settled claims in service/session-end window",
-    "referenceProductSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+    "referenceProductSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
   },
   "sampledCountsChecked": 4080,
   "coveredOverlapsReconciled": 1652,
   "fortnightSessionsReconciled": 13415,
   "fortnightReceiptVerified": true,
   "ownerPartitionsConserveExactly": true,
-  "canonicalSha256": "21f496a917fa3dd9fad3dbc31a9eba8a6e5707d76e1c87c345a68a5ab8c1cd5a",
-  "packedSha256": "d24c43b4f040cdbffad57bb4698f43164063876721a581d15ec2f7e3a56c3fe0",
-  "originalSampleSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "canonicalSha256": "6c9e6ae6190f34d61c1162c477c00fc230fe736e3b3117550d2a2426641bb3b2",
+  "packedSha256": "3b9b93120455802ae1cffefce5e8432173c7594745fde777e336ecbb4a7b6d97",
+  "originalSampleSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088",
   "notice": "Indexed settled-session earnings only. Sessions absent from the index are outside this denominator, not verified zero. This is not all relays or registered-session presence. No eligible population is inferred; selection models remain in the original sampled snapshot.",
   "originalSampledCoverageUnchanged": {
     "covered": 1652,

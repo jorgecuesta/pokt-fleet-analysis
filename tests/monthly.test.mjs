@@ -13,7 +13,7 @@ const monthlyCheck=JSON.parse(await readFile(new URL('../data/monthly-claims-dia
 const close=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 
 test('the product serves the exact completed uploaded month, not the pilot fixture',()=>{
-  assert.equal(createHash('sha256').update(bytes).digest('hex'),'059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),'feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088');
   assert.equal(wire.period.start,'2026-09-06T00:00:00Z');
   assert.equal(wire.period.endExclusive,'2026-10-06T00:00:00Z');
   assert.equal(wire.populations.length,960);assert.equal(wire.sessions.length,4080);

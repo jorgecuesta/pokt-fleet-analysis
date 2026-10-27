@@ -1,13 +1,13 @@
 {
-  "diagnosticVersion": "monthly-claims-check-1.0",
-  "productSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "diagnosticVersion": "monthly-claims-check-2.0",
+  "productSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088",
   "period": {
     "start": "2026-09-06T00:00:00Z",
     "endExclusive": "2026-10-06T00:00:00Z",
     "timezone": "UTC"
   },
   "cutoff": 955836,
-  "completedAt": "2026-10-10T16:59:14.453387Z",
+  "completedAt": "2026-10-27T19:17:08.326574Z",
   "monthlyWindowDefinition": "Session end height from first block at/after UTC start to before first block at/after UTC endExclusive. Settlement block <= original cutoff.",
   "sampleDefinition": "The exact 4,080 session IDs saved in the website's monthly product.",
   "notice": "Diagnostic counts do not change original payout amounts, denominators, earnings comparisons or ranks.",
@@ -38,17 +38,17 @@
       "no-indexed-monthly-claims": 19
     }
   },
-  "snapshotId": "live-7d282134db50c264",
-  "rawDiagnosticSha256": "d3bb39f3d211b3e70113b7e2d5457748cf30a437a3ee857c531d70b353c01c18",
+  "snapshotId": "live-69c0368071299620",
+  "rawDiagnosticSha256": "6bff4edf128d8198e41b59a7fdb73dee73a0ce7badf2b95aacb1aade1159afad",
   "indexerMetadata": {
-    "lastProcessedHeight": 958897,
+    "lastProcessedHeight": 983212,
     "chain": "pocket"
   },
-  "requestCount": 37,
+  "requestCount": 39,
   "httpStatusCounts": {
-    "200": 37
+    "200": 39
   },
-  "elapsedSeconds": 39.52,
+  "elapsedSeconds": 94.15,
   "groups": [
     {
       "serviceId": "arb-one",

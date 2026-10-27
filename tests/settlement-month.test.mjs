@@ -18,7 +18,7 @@ const datesFor=period=>new Date(+new Date(wire.config.endExclusive)-Number(perio
 
 test('the actual monthly source, receipt, immutable sample and shipped table hashes agree',async()=>{
   const sha=async p=>createHash('sha256').update(await readFile(new URL(p,import.meta.url))).digest('hex');
-  assert.equal(await sha('../data/live-snapshot.json.gz'),'059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57');
+  assert.equal(await sha('../data/live-snapshot.json.gz'),'feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088');
   assert.equal(await sha('../data/settlement-month.json.gz'),tables.packedSha256);
   assert.equal(wire.sessions.length,29448);assert.equal(source.info.claims,851096);
   assert.equal(source.info.verifiedSessions,29448);assert.equal(receipt.coverage.unknownDistributionClaims,0);

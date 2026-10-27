@@ -12,17 +12,18 @@
     "services": [
       "eth"
     ],
-    "membershipTime": "session-end archive height",
+    "membershipTime": "session catalog roster; owner and endpoints at session start",
     "scope": "all indexed settled claims in service/session-end window",
-    "referenceProductSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+    "referenceProductSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
   },
   "sampledCountsChecked": 224,
   "coveredOverlapsReconciled": 74,
   "fortnightSessionsReconciled": 0,
+  "fortnightReceiptVerified": false,
   "ownerPartitionsConserveExactly": true,
-  "canonicalSha256": "896cfdac369eab8b21c65560e0ad0fefee59c8e45566d44e840be5e761fab30b",
-  "packedSha256": "63152f697a3c72b134301f6d7c043a702946ea92e24c1bd54056e26e3e18b81a",
-  "originalSampleSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57",
+  "canonicalSha256": "3227ffc0382b8e793c2ac01f372873c8ccbaaf40b1d49d07cc7fea2796ca4cbd",
+  "packedSha256": "9d02c2e16078c0b5f787138cd7740fddba26bc3521bd0144b40538f9e3f5c218",
+  "originalSampleSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088",
   "notice": "Indexed settled-session earnings only. Sessions absent from the index are outside this denominator, not verified zero. This is not all relays or registered-session presence. No eligible population is inferred; selection models remain in the original sampled snapshot.",
   "originalSampledCoverageUnchanged": {
     "covered": 1652,

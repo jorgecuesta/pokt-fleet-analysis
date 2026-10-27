@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-EXPECTED="059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+EXPECTED="feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
 
 def at(s):
     return datetime.fromisoformat(s.replace("Z","+00:00"))

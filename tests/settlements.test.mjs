@@ -13,7 +13,7 @@ const sampled=await read('../data/live-snapshot.json.gz'),proof=await read('./fi
 const receipt=await read('./fixtures/indexed-settlements-proof-receipt.json');
 const monthlyCheck=await read('../data/monthly-claims-diagnostic.json');
 const independent=await read('./fixtures/indexed-settlements-proof-owner-analysis.json');
-const sha='63152f697a3c72b134301f6d7c043a702946ea92e24c1bd54056e26e3e18b81a';
+const sha='9d02c2e16078c0b5f787138cd7740fddba26bc3521bd0144b40538f9e3f5c218';
 const tables=prepareSettlementTables(sampled,proof,sha);
 const adapter=createLiveAdapter(structuredClone(sampled),monthlyCheck,proof,receipt,tables);
 const source=createSettlementSource(sampled,proof,receipt);

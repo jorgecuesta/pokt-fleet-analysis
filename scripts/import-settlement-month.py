@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "analysis"))
 from settlement_product import unpack
 
-SAMPLE_SHA = "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+SAMPLE_SHA = "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
 SERVICES = {"arb-one", "base", "bsc", "eth", "opbnb", "poly", "robinhood", "solana"}
 
 

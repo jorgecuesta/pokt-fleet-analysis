@@ -16,13 +16,13 @@
       "robinhood",
       "solana"
     ],
-    "membershipTime": "session-end archive height",
+    "membershipTime": "session catalog roster; owner and endpoints at session start",
     "scope": "all indexed settled claims in service/session-end window",
-    "referenceProductSha256": "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+    "referenceProductSha256": "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
   },
   "status": "reconciled",
-  "startedAt": "2026-10-12T17:54:05.796542Z",
-  "collectorSha256": "5e8b3bc482a336a82fcd231f13e580cbd0580258377d0f6b8619456921412214",
+  "startedAt": "2026-10-27T20:26:20.531014Z",
+  "collectorSha256": "83a42d8abc678dc8893c112f3f4dde37cf260f2e691196ef5e22c940700ccd70",
   "boundaryBlocks": {
     "start": {
       "height": 909560,
@@ -35,11 +35,12 @@
   },
   "indexerMetadata": {
     "chain": "pocket",
-    "lastProcessedHeight": 961825
+    "lastProcessedHeight": 983283
   },
-  "protocolVerification": {
-    "version": "0.1.35",
-    "git_commit": "a109dd0bae65c1d96b010d65f4cdc5bc77a50fc2"
+  "rosterSource": {
+    "api": "https://data.pocket.network/graphql",
+    "function": "getSessionRostersJson",
+    "rostersFromHeight": 703870
   },
   "overlap": {
     "sampledSessionsChecked": 4080,
@@ -54,19 +55,19 @@
     "indexedSettledSessions": 29448,
     "verifiedDistributionSessions": 29448
   },
-  "completedAt": "2026-10-12T20:48:51.993661Z",
+  "completedAt": "2026-10-27T20:30:15.400345Z",
   "monthlyCounts": {
     "knownGroupsReconciled": 34,
     "knownGroupClaimRecords": 851096,
     "additionalApplicationGroups": []
   },
   "artifact": "settlement-evidence.json.gz",
-  "artifactSha256": "21f496a917fa3dd9fad3dbc31a9eba8a6e5707d76e1c87c345a68a5ab8c1cd5a",
+  "artifactSha256": "6c9e6ae6190f34d61c1162c477c00fc230fe736e3b3117550d2a2426641bb3b2",
   "metrics": {
-    "seconds": 10486.22,
-    "httpAttempts": 17770,
-    "wireBytes": 627996379,
-    "compressedBytes": 27772626
+    "seconds": 222.52,
+    "httpAttempts": 9,
+    "wireBytes": 6847,
+    "compressedBytes": 27772664
   },
   "productUpdate": "Not installed. Review the new settled-session scope separately from sampled selection."
 }
