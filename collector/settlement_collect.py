@@ -2,15 +2,15 @@
 """Claim-first, read-only extraction; does not replace the sampled website.
 
 Python 3.10+, standard library only. Uses the original collector's audited HTTP
-cache, retries, archive-height checks and endpoint parser without editing it.
-Every indexed claim in the service/session-end window is paginated, regardless
-of Application. Historical membership comes from each selected session's REST
-roster, not an interpolated Supplier registry. Amounts remain integer uPOKT.
+cache, retries and endpoint parser. Every session of the pocketdex session
+catalog in the service/session-end window is paginated, regardless of
+Application; members in a settled state are its settled claims. Historical
+membership comes from each session's catalog roster and the members' service
+config history, not an interpolated Supplier registry. Amounts remain integer uPOKT.
 """
 from __future__ import annotations
 
 import argparse
-import concurrent.futures as cf
 import gzip
 import hashlib
 import json
@@ -22,44 +22,24 @@ from datetime import timedelta
 from pathlib import Path
 
 from pokt_live_collector import (
-    Client, FIXED_SERVICES, PAYOUT_REASONS, SUPPORTED_PROTOCOL_COMMIT,
+    Client, FIXED_SERVICES, GRAPHQL,
     atomic_json, digest, dt, iso, normalized_registry, read_json, suffix_rules, utcnow,
+)
+from session_catalog import (
+    PAGE_SIZE, PARAMS_QUERY, ROSTER_ERA_HEIGHT, block_times, config_at, nat, network_settled_seats, param_at,
+    roster_page, session_claims, settled_seats, supplier_configs,
 )
 
 VERSION = "settlement-first-1.0"
-PRODUCT_SHA256 = "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+PRODUCT_SHA256 = "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
 CUTOFF = 955836
 MONTH_START = "2026-09-06T00:00:00Z"
 END = "2026-10-06T00:00:00Z"
 PILOT_START = "2026-09-29T00:00:00Z"
-PAGE_SIZE = 500
 
 
 def log(message):
     print(message,flush=True)
-
-CLAIMS_QUERY = '''query($filter:EventClaimSettledFilter!,$after:Cursor,$first:Int!,
- $payout:ModToAcctTransferFilter!,$relay:ModToAcctTransferFilter!,$global:ModToAcctTransferFilter!){
- eventClaimSettleds(first:$first,after:$after,orderBy:ID_ASC,filter:$filter){
- pageInfo{hasNextPage endCursor} nodes{
- id supplierId serviceId applicationId sessionId sessionEndHeight blockId
- numEstimatedRelays numEstimatedComputedUnits settledAmount settledDenom block{timestamp}
- allTransfers:modToAcctTransfers{totalCount}
- unknownTransfers:modToAcctTransfers(filter:{opReason:{equalTo:UNSPECIFIED}}){totalCount}
- supplierTransfers:modToAcctTransfers(filter:$payout){totalCount aggregates{sum{amount}}}
- relayTransfers:modToAcctTransfers(filter:$relay){totalCount aggregates{sum{amount}}}
- globalTransfers:modToAcctTransfers(filter:$global){totalCount aggregates{sum{amount}}}
- }}}'''
-COUNT_QUERY = '''query($filter:EventClaimSettledFilter!){
- eventClaimSettleds(first:1,filter:$filter){totalCount}}'''
-BLOCKS_QUERY = '''query($filter:BlockFilter!){blocks(first:200,filter:$filter){
- totalCount pageInfo{hasNextPage} nodes{id timestamp}}}'''
-
-
-def nat(value, label):
-    if isinstance(value, bool) or not str(value).isdigit():
-        raise ValueError(f"{label} must be a nonnegative integer, got {value!r}")
-    return int(value)
 
 
 def plan(stage="pilot"):
@@ -68,16 +48,9 @@ def plan(stage="pilot"):
     return {"version": VERSION, "stage": stage, "cutoff": CUTOFF,
             "start": PILOT_START if stage == "pilot" else MONTH_START,
             "endExclusive": END, "services": ["eth"] if stage == "pilot" else FIXED_SERVICES,
-            "membershipTime": "session-end archive height",
+            "membershipTime": "session catalog roster; owner and endpoints at session start",
             "scope": "all indexed settled claims in service/session-end window",
             "referenceProductSha256": PRODUCT_SHA256}
-
-
-def claim_filter(config, service, bounds):
-    return {"serviceId": {"equalTo": service},
-            "sessionEndHeight": {"greaterThanOrEqualTo": str(bounds["start"]["height"]),
-                                 "lessThan": str(bounds["end"]["height"])},
-            "blockId": {"lessThanOrEqualTo": str(config["cutoff"])}}
 
 
 def resolve_boundaries(client, config):
@@ -104,42 +77,6 @@ def resolve_boundaries(client, config):
     return bounds
 
 
-def transfers(conn):
-    count = nat(conn["totalCount"], "transfer count")
-    amount = conn["aggregates"]["sum"]["amount"]
-    if amount is None and count:
-        raise ValueError("Missing transfer aggregate")
-    amount = nat(amount or 0, "transfer amount")
-    if not count and amount:
-        raise ValueError("Nonzero aggregate for an empty transfer set")
-    return count, amount
-
-
-def normalize_claim(raw, config, service, bounds):
-    row = json.loads(json.dumps(raw))
-    if not all(isinstance(row.get(k), str) and row[k] for k in ("id", "supplierId", "sessionId", "applicationId")):
-        raise ValueError("Claim identity is missing")
-    end, block = nat(row["sessionEndHeight"], "session end"), nat(row["blockId"], "settlement block")
-    if row["serviceId"] != service or not bounds["start"]["height"] <= end < bounds["end"]["height"] or not end < block <= config["cutoff"]:
-        raise ValueError("Claim outside service, session window or cutoff")
-    if row["settledDenom"] != "upokt":
-        raise ValueError("Unexpected claim denomination")
-    nat(row["settledAmount"], "settled amount")
-    iso(dt(row["block"]["timestamp"]))  # Reject malformed availability timestamps.
-    count, amount = transfers(row["supplierTransfers"])
-    relay_count, relay_amount = transfers(row["relayTransfers"])
-    global_count, global_amount = transfers(row["globalTransfers"])
-    if count != relay_count+global_count or amount != relay_amount+global_amount:
-        raise ValueError("Supplier distribution reasons do not reconcile")
-    all_count = nat(row["allTransfers"]["totalCount"], "all transfers")
-    unknown = nat(row["unknownTransfers"]["totalCount"], "unknown transfers")
-    if count > all_count or unknown > all_count:
-        raise ValueError("Transfer counts are inconsistent")
-    row.update(payoutUpokt=str(amount), payoutTransferCount=count,
-               payoutVerified=unknown == 0 and all_count > 0)
-    return row
-
-
 def connect(path, config):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -153,6 +90,7 @@ def connect(path, config):
     CREATE TABLE IF NOT EXISTS claims (id TEXT PRIMARY KEY,session TEXT,service TEXT,app TEXT,
       end_height INTEGER,supplier TEXT,json TEXT NOT NULL,page INTEGER,position INTEGER,UNIQUE(session,supplier));
     CREATE INDEX IF NOT EXISTS claim_session ON claims(session);
+    CREATE TABLE IF NOT EXISTS sessions (session TEXT PRIMARY KEY,service TEXT NOT NULL,json TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS rosters (session TEXT PRIMARY KEY,json TEXT NOT NULL,hash TEXT NOT NULL);
     ''')
     encoded = json.dumps(config, sort_keys=True)
@@ -165,174 +103,98 @@ def connect(path, config):
     return db
 
 
-def count_claims(client, config, service, bounds):
-    return nat(client.gql(COUNT_QUERY, fresh=True, filter=claim_filter(config, service, bounds))
-               ["eventClaimSettleds"]["totalCount"], "claim count")
-
-
-def is_statement_timeout(exc):
-    message = str(exc)
-    return (message.startswith("GraphQL errors:") and "57014" in message
-            and "canceling statement due to statement timeout" in message)
-
-
-def claim_page(client, variables, size, progress=log):
-    # Do not repeat the whole-window count inside every costly transfer page.
-    # Counts are checked separately before collection and at final sealing.
-    # Only this observed PostgreSQL timeout receives a smaller-page retry;
-    # schema and semantic errors stop immediately. The cursor stays unchanged.
-    for attempt in range(4):
-        try:
-            result = client.gql(CLAIMS_QUERY, **variables, first=size)["eventClaimSettleds"]
-            return result, size
-        except ValueError as exc:
-            if not is_statement_timeout(exc) or attempt == 3:
-                raise
-            size = max(50, size//2)
-            progress(f"Indexer statement timeout: retrying the same cursor with {size} claims per page; no records skipped.")
-            time.sleep(2*(attempt+1))
-    raise AssertionError("Unreachable retry state")
-
-
 def download_service(client, db, config, service, bounds, progress=log):
-    expected = count_claims(client, config, service, bounds)
+    # Sessions are selected by END height; the catalog pages by session START, so the
+    # start range opens one hour early and the window is applied to end_height here.
+    # It also closes two hours late: full coverage there proves the catalog has written
+    # every session that ends inside the window.
+    start = iso(dt(bounds["start"]["timestamp"])-timedelta(hours=1))
+    end = iso(dt(bounds["end"]["timestamp"])+timedelta(hours=2))
     state = db.execute("SELECT total,status FROM services WHERE service=?", (service,)).fetchone()
-    if state and state[0] != expected:
-        raise ValueError("Indexed count changed under the fixed cutoff; keep this run for investigation")
-    previous = db.execute("SELECT page,next_cursor,row_count FROM pages WHERE service=? ORDER BY page DESC LIMIT 1", (service,)).fetchone()
-    stored = db.execute("SELECT count(*) FROM claims WHERE service=?", (service,)).fetchone()[0]
     if state and state[1] == "complete":
-        if stored != expected:
-            raise ValueError("Resume claim database is incomplete")
-        return expected
+        return state[0]
+    previous = db.execute("SELECT page,next_cursor FROM pages WHERE service=? ORDER BY page DESC LIMIT 1", (service,)).fetchone()
+    stored = db.execute("SELECT count(*) FROM claims WHERE service=?", (service,)).fetchone()[0]
     with db:
-        db.execute("INSERT OR IGNORE INTO services VALUES(?,?,?)", (service, expected, "collecting"))
-    after = previous[1] if previous else None
+        db.execute("INSERT OR IGNORE INTO services VALUES(?,?,?)", (service, None, "collecting"))
     page = previous[0]+1 if previous else 0
-    page_size = min(PAGE_SIZE, max(50, previous[2])) if previous else PAGE_SIZE
-    seen = {r[0] for r in db.execute("SELECT next_cursor FROM pages WHERE service=?", (service,)) if r[0]}
-    payout = {"denom": {"equalTo": "upokt"}, "opReason": {"in": PAYOUT_REASONS}}
-    reasons = [{"denom": {"equalTo": "upokt"}, "opReason": {"equalTo": reason}} for reason in PAYOUT_REASONS]
+    # The cursor also carries the oldest session end seen and the settled seats counted
+    # so far, so a resumed run keeps both checks below.
+    before, oldest, seats = None, None, 0
+    if previous:
+        height, session, oldest, seats = previous[1].split(":")
+        before, oldest, seats = (int(height), session), int(oldest), int(seats)
     for _ in range(10000):
-        conn, page_size = claim_page(client, {"filter":claim_filter(config, service, bounds), "after":after,
-                          "payout":payout, "relay":reasons[0], "global":reasons[1]}, page_size, progress)
-        if "totalCount" in conn and nat(conn["totalCount"], "page total") != expected:
-            raise ValueError("Claim count changed while paginating")
-        raw = conn["nodes"]
-        info = conn["pageInfo"]
-        if not isinstance(raw, list) or len(raw) > page_size or not isinstance(info["hasNextPage"], bool):
-            raise ValueError("Invalid claim page")
-        rows = [normalize_claim(r, config, service, bounds) for r in raw]
-        cursor = info["endCursor"]
-        if info["hasNextPage"] and (not raw or not cursor or cursor in seen):
-            raise ValueError("Claim cursor made no progress")
-        if stored+len(rows) > expected or (not info["hasNextPage"] and stored+len(rows) != expected):
-            raise ValueError("Claim pagination count mismatch")
+        rows = roster_page(client, start, end, [service], before=before)
+        kept = [r for r in rows if bounds["start"]["height"] <= nat(r["end_height"], "end") < bounds["end"]["height"]]
+        claims = [c for r in kept for c in session_claims(r, config, service)]
+        times = block_times(client, [c["blockId"] for c in claims], config, window=False) if claims else {}
+        for c in claims:
+            c["block"] = {"timestamp": times[int(c["blockId"])]}
+        done = len(rows) < PAGE_SIZE
+        oldest = nat(rows[-1]["end_height"], "end") if rows else oldest
+        seats += settled_seats(rows, config["start"], config["endExclusive"])
+        if done and (oldest is None or oldest >= bounds["start"]["height"]):
+            raise ValueError("Session catalog start range does not reach before the window")
+        # Completeness: the pages hold every settled seat the catalog totals for these session starts.
+        if done and seats != network_settled_seats(client, config["start"], config["endExclusive"], service):
+            raise ValueError("Session catalog pages and its network total disagree; keep this run for investigation")
+        stored += len(claims)
+        cursor = f"{rows[-1]['start_height']}:{rows[-1]['session_id']}:{oldest}:{seats}" if rows else None
         # A whole page and its checkpoint commit together. Duplicates roll back.
         with db:
-            for position, r in enumerate(rows):
+            for r in kept:
+                if any(c["sessionId"] == r["session_id"] for c in claims):
+                    db.execute("INSERT INTO sessions VALUES(?,?,?)", (r["session_id"], service, json.dumps(r, separators=(",", ":"))))
+            for position, c in enumerate(claims):
                 db.execute("INSERT INTO claims VALUES(?,?,?,?,?,?,?,?,?)",
-                           (r["id"], r["sessionId"], service, r["applicationId"], int(r["sessionEndHeight"]),
-                            r["supplierId"], json.dumps(r, separators=(",", ":")), page, position))
-            db.execute("INSERT INTO pages VALUES(?,?,?,?,?)", (service, page, cursor, len(rows), digest(rows)))
-            if not info["hasNextPage"]:
-                db.execute("UPDATE services SET status='complete' WHERE service=?", (service,))
-        stored += len(rows)
-        if page % 10 == 0 or not info["hasNextPage"]:
-            progress(f"{service}: {stored:,}/{expected:,} claims · page {page+1}; cached progress retained")
-        if not info["hasNextPage"]:
-            return expected
-        seen.add(cursor)
-        after, page = cursor, page+1
-    raise ValueError("Claim extraction exceeded the page limit")
-
-
-def historical_roster(client, session, config, ended_at=None, verify_cap=False):
-    height = session["endHeight"]
-    raw = client.rest("/pokt-network/poktroll/session/get_session", height,
-                      application_address=session["applicationId"], service_id=session["serviceId"],
-                      block_height=height)["session"]
-    h = raw["header"]
-    if (h["session_id"], h["service_id"], h["application_address"], nat(h["session_end_block_height"], "end")) != (
-            session["id"], session["serviceId"], session["applicationId"], height):
-        raise ValueError("Claim and historical roster identities do not match")
-    start = nat(h["session_start_block_height"], "start")
-    if not 1 < start <= height or raw["application"]["address"] != session["applicationId"]:
-        raise ValueError("Historical session header or Application is invalid")
-    ids = [s["operator_address"] for s in raw["suppliers"]]
-    if not ids or len(ids) != len(set(ids)):
-        raise ValueError("Empty or duplicate historical roster")
-    cap=None
-    if verify_cap:
-        cap = nat(client.rest("/pokt-network/poktroll/session/params", start-1)["params"]["num_suppliers_per_session"], "cap")
-        if cap == 0 or len(ids) > cap:
-            raise ValueError("Historical roster exceeds the effective session cap")
-    members = normalized_registry(raw["suppliers"], [session["serviceId"]])
-    if {m["id"] for m in members} != set(ids):
-        raise ValueError("A selected Supplier lacks its service-specific historical configuration")
-    if any(m["operatorAddressParts"].get("checksumValid") is not True or m["ownerAddressParts"].get("checksumValid") is not True for m in members):
-        raise ValueError("Invalid historical Supplier or owner address")
-    if ended_at is None:
-        header = client.rest(f"/cosmos/base/tendermint/v1beta1/blocks/{height}")["block"]["header"]
-        if header["chain_id"] != "pocket" or nat(header["height"], "block height") != height:
-            raise ValueError("Historical end block identity mismatch")
-        ended_at=header["time"]
-    at = iso(dt(ended_at))
-    if not dt(config["start"]) <= dt(at) < dt(config["endExclusive"]):
-        raise ValueError("Session end block does not match the exact UTC window")
-    return {**session, "startHeight": start, "endedAt": at, "selectedCount": len(ids),
-            "selectionCap": cap, "members": members, "membershipSource": "archive REST at session end"}
-
-
-def block_times(client, heights, config):
-    times={}
-    values=sorted(set(heights))
-    for offset in range(0,len(values),200):
-        part=values[offset:offset+200]
-        conn=client.gql(BLOCKS_QUERY,filter={"id":{"in":[str(h) for h in part]}})["blocks"]
-        rows=conn["nodes"]
-        if nat(conn["totalCount"],"block count")!=len(part) or len(rows)!=len(part) or conn["pageInfo"]["hasNextPage"] is not False:
-            raise ValueError("Historical block timestamp batch is incomplete")
-        for row in rows:
-            height=nat(row["id"],"block height")
-            at=iso(dt(row["timestamp"]))
-            if height not in part or height in times or not dt(config["start"])<=dt(at)<dt(config["endExclusive"]):
-                raise ValueError("Historical block timestamp is repeated or out of scope")
-            times[height]=at
-    return times
+                           (c["id"], c["sessionId"], service, c["applicationId"], int(c["sessionEndHeight"]),
+                            c["supplierId"], json.dumps(c, separators=(",", ":")), page, position))
+            db.execute("INSERT INTO pages VALUES(?,?,?,?,?)", (service, page, cursor, len(claims), digest(claims)))
+            if done:
+                db.execute("UPDATE services SET total=?,status='complete' WHERE service=?", (stored, service))
+        if page % 5 == 0 or done:
+            progress(f"{service}: {stored:,} settled claims · catalog page {page+1}; cached progress retained")
+        if done:
+            return stored
+        before, page = (nat(rows[-1]["start_height"], "start"), rows[-1]["session_id"]), page+1
+    raise ValueError("Session catalog extraction exceeded the page limit")
 
 
 def fetch_rosters(client, db, config, progress=log):
-    sessions = db.execute("SELECT session,min(service),min(app),min(end_height),count(DISTINCT service),count(DISTINCT app),count(DISTINCT end_height) FROM claims GROUP BY session ORDER BY min(end_height),session").fetchall()
-    times=block_times(client,[item[3] for item in sessions],config)
-    boundary_heights={sessions[0][3],sessions[-1][3]} if sessions else set()
-    def fetch(item):
-        sid, service, app, height, ns, na, nh = item
-        if (ns, na, nh) != (1, 1, 1):
-            raise ValueError("Conflicting service, Application or end height for a session")
-        return historical_roster(client, {"id": sid, "serviceId": service, "applicationId": app, "endHeight": height}, config,
-                                 ended_at=times[height],verify_cap=height in boundary_heights)
-    saved_ids=set()
+    sessions = [json.loads(r[0]) for r in db.execute("SELECT json FROM sessions ORDER BY session")]
+    saved = {r[0] for r in db.execute("SELECT session FROM rosters")}
+    remaining = [r for r in sessions if r["session_id"] not in saved]
+    times = block_times(client, [r["end_height"] for r in remaining], config)
+    history = client.gql(PARAMS_QUERY, keys=["num_suppliers_per_session"])["getParamHistoryList"] if remaining else []
+    configs = supplier_configs(client, [(m, r["service_id"]) for r in remaining for m in r["member_ids"]], progress)
+    with db:
+        for r in remaining:
+            end, start, service = nat(r["end_height"], "end"), nat(r["start_height"], "start"), r["service_id"]
+            if not 1 < start <= end:
+                raise ValueError("Historical session header is invalid")
+            cap = param_at(history, "session", "num_suppliers_per_session", start)
+            if nat(r["roster_size"], "roster size") > cap:
+                raise ValueError("Historical roster exceeds the effective session cap")
+            # The roster and its configs are fixed at the session start; the owner is the
+            # catalog's owner at the start (the archive roster read it at the end height).
+            members = normalized_registry([{"operator_address": supplier, "owner_address": owner,
+                                            "services": [{"service_id": service, "endpoints": config_at(configs, supplier, service, start)}]}
+                                           for supplier, owner in zip(r["member_ids"], r["member_owner_ids"])], [service])
+            if {m["id"] for m in members} != set(r["member_ids"]):
+                raise ValueError("A selected Supplier lacks its service-specific historical configuration")
+            at = times[end]
+            if not dt(config["start"]) <= dt(at) < dt(config["endExclusive"]):
+                raise ValueError("Session end block does not match the exact UTC window")
+            roster = {"id": r["session_id"], "serviceId": service, "applicationId": r["application_id"], "endHeight": end,
+                      "startHeight": start, "endedAt": at, "selectedCount": len(members), "selectionCap": cap,
+                      "members": members, "membershipSource": "session catalog roster and supplier config history at session start"}
+            db.execute("INSERT INTO rosters VALUES(?,?,?)", (roster["id"], json.dumps(roster, separators=(",", ":")), digest(roster)))
+    progress(f"Historical rosters: {len(sessions):,}/{len(sessions):,} · owner and endpoint membership verified")
     for sid, text, checksum in db.execute("SELECT session,json,hash FROM rosters"):
-        if digest(json.loads(text))!=checksum:
+        roster = json.loads(text)
+        if digest(roster) != checksum:
             raise ValueError("Cached historical roster checksum mismatch")
-        saved_ids.add(sid)
-    remaining=[item for item in sessions if item[0] not in saved_ids]
-    completed=len(saved_ids)
-    # Bounded batches retain a small memory footprint. Only HTTP runs in worker
-    # threads; SQLite mutations stay on the owning thread.
-    with cf.ThreadPoolExecutor(max_workers=4) as pool:
-        for offset in range(0,len(remaining),20):
-            futures=[pool.submit(fetch,item) for item in remaining[offset:offset+20]]
-            for future in cf.as_completed(futures):
-                roster=future.result()
-                with db:
-                    db.execute("INSERT INTO rosters VALUES(?,?,?)", (roster["id"],json.dumps(roster,separators=(",",":")),digest(roster)))
-                completed+=1
-                if completed%10==0 or completed==len(sessions):
-                    progress(f"Historical rosters: {completed:,}/{len(sessions):,} · owner and endpoint membership verified")
-    for sid, *_ in sessions:
-        roster=json.loads(db.execute("SELECT json FROM rosters WHERE session=?",(sid,)).fetchone()[0])
         ids = {m["id"] for m in roster["members"]}
         if not {r[0] for r in db.execute("SELECT supplier FROM claims WHERE session=?", (sid,))}.issubset(ids):
             raise ValueError("A settled Supplier is absent from the historical roster")
@@ -483,14 +345,11 @@ def run(root, stage, reference_path, pilot_report=None, progress=log):
         meta = client.gql('{_metadata{chain lastProcessedHeight}}', fresh=True)["_metadata"]
         if meta["chain"] != "pocket" or nat(meta["lastProcessedHeight"], "indexer height") < config["cutoff"]:
             raise ValueError("Wrong chain or indexer behind the fixed cutoff")
-        version = client.rest('/cosmos/base/tendermint/v1beta1/node_info', fresh=True)["application_version"]
-        applied = nat(client.rest('/cosmos/upgrade/v1beta1/applied_plan/v0.1.35')["height"], "upgrade height")
-        if version.get("git_commit") != SUPPORTED_PROTOCOL_COMMIT or version.get("version") != "0.1.35":
-            raise ValueError("Protocol version changed; review the historical API before continuing")
         bounds = resolve_boundaries(client, config)
-        if bounds["start"]["height"] < applied:
-            raise ValueError("Window predates the validated protocol era")
-        state.update(boundaryBlocks=bounds, indexerMetadata=meta, protocolVerification={k:version[k] for k in ('version','git_commit')})
+        if bounds["start"]["height"] < ROSTER_ERA_HEIGHT:
+            raise ValueError("Window predates the catalog's session rosters")
+        state.update(boundaryBlocks=bounds, indexerMetadata=meta,
+                     rosterSource={"api": GRAPHQL, "function": "getSessionRostersJson", "rostersFromHeight": ROSTER_ERA_HEIGHT})
         atomic_json(run_dir/"run.json", state)
         progress(f"{stage}: {config['start']} to {config['endExclusive']} exclusive · cutoff {config['cutoff']} · {config['services']}")
         for service in config["services"]:
@@ -503,10 +362,6 @@ def run(root, stage, reference_path, pilot_report=None, progress=log):
         if not overlap["passed"] or evidence["coverage"]["unknownDistributionClaims"]:
             raise ValueError("Reconciliation needs review; inspect cached claims and membership before expansion")
         monthly = reconcile_monthly_counts(evidence, reference) if stage == "month" else None
-        for service in config["services"]:
-            count = count_claims(client, config, service, bounds)
-            if count != db.execute("SELECT total FROM services WHERE service=?", (service,)).fetchone()[0]:
-                raise ValueError("Final indexed count changed during extraction")
         artifact = run_dir/"settlement-evidence.json.gz"
         atomic_json(artifact, evidence)
         state.update(status="reconciled", completedAt=iso(utcnow()), overlap=overlap, monthlyCounts=monthly,

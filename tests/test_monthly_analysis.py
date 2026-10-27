@@ -89,24 +89,44 @@ class DiagnosticTests(unittest.TestCase):
             calls.append(body)
             if len(calls) == 1:
                 return self.response({"data": {"_metadata": {"chain": "pocket", "lastProcessedHeight": 955900},
-                       "__type": {"inputFields": [{"name": x} for x in ["applicationId", "serviceId", "blockId"]]}}})
-            return self.response({"data": {"eventClaimSettleds": {"totalCount": 0, "nodes": []}}})
+                       "blocks": {"nodes": [{"id": "955836", "timestamp": "2026-10-08T13:31:00"}]}}})
+            return self.response({"data": {"getNetworkSessionsJson": {"range": {"covered_from": "2026-08-26T03:47:54Z", "gaps": []}, "data": []}}})
         before = json.dumps(report)
         result = analysis.verify_indexed_history(report, 1, transport)
         self.assertEqual(len(calls), 2)
-        self.assertEqual(calls[1]["variables"]["filter"]["blockId"], {"lessThanOrEqualTo": "955836"})
+        self.assertIn('equalTo:"955836"', calls[0]["query"])
+        self.assertEqual(calls[1]["variables"], {"b": "2026-10-08T13:31:00Z", "apps": ["test-app"], "services": ["eth"]})
         self.assertEqual(result["results"][0]["indexedHistoryCountThroughCutoff"], 0)
-        self.assertNotIn("orderBy:ID_DESC", calls[1]["query"])
-        self.assertIn("exampleClaims", result["results"][0])
-        self.assertNotIn("latestFiveClaims", result["results"][0])
+        self.assertEqual(result["results"][0]["historyCoveredFrom"], "2026-08-26T03:47:54Z")
         self.assertIn("Not a monthly total", result["results"][0]["interpretation"])
         self.assertEqual(json.dumps(report), before)
 
-    def test_schema_mismatch_stops_before_claim_queries(self):
+    def test_settlements_after_the_cutoff_are_removed_and_an_unindexed_cutoff_stops(self):
+        report = {"cutoff": 955836, "applicationGroups": [{"serviceId": "eth", "applicationId": "test-app", "covered": 0}]}
+        head = {"data": {"_metadata": {"chain": "pocket", "lastProcessedHeight": 955900},
+                         "blocks": {"nodes": [{"id": "955836", "timestamp": "2026-10-08T13:31:00"}]}}}
+        late = {"data": {"getNetworkSessionsJson": {"range": {"covered_from": "2026-08-26T03:47:54Z", "gaps": []},
+                "data": [{"application_id": "test-app", "service_id": "eth", "paid": "1", "settled_zero": "0", "last_height": "955840"}]}}}
+        settled_late = {"data": {"getSessionRostersJson": {"range": {"gaps": []}, "data": [
+            {"settled_height": "955840", "member_states": ["paid", "idle_others_worked"]},
+            {"settled_height": "955830", "member_states": ["paid"]}]}}}
+        answers = iter([head, late, settled_late])
+        result = analysis.verify_indexed_history(report, 1, lambda *a, **k: self.response(next(answers)))
+        self.assertEqual((result["results"][0]["indexedHistoryCountThroughCutoff"], result["requestCount"]), (0, 3))
+        too_many = {"data": {"getSessionRostersJson": {"range": {"gaps": []}, "data": [
+            {"settled_height": "955840", "member_states": ["paid", "paid"]}]}}}
+        answers = iter([head, late, too_many])
+        with self.assertRaisesRegex(analysis.ProbeError, "exceeds the history count"):
+            analysis.verify_indexed_history(report, 1, lambda *a, **k: self.response(next(answers)))
+        missing = {"data": {"_metadata": {"chain": "pocket", "lastProcessedHeight": 955900}, "blocks": {"nodes": []}}}
+        with self.assertRaisesRegex(analysis.ProbeError, "cutoff block is not indexed"):
+            analysis.verify_indexed_history(report, 1, lambda *a, **k: self.response(missing))
+
+    def test_behind_indexer_stops_before_claim_queries(self):
         def transport(*a, **k):
-            return self.response({"data": {"_metadata": {"lastProcessedHeight": 955900}, "__type": {"inputFields": []}}})
-        with self.assertRaisesRegex(analysis.ProbeError, "schema differs"):
-            analysis.verify_indexed_history({"cutoff": 955836}, transport=transport)
+            return self.response({"data": {"_metadata": {"lastProcessedHeight": 955800}, "blocks": {"nodes": []}}})
+        with self.assertRaisesRegex(analysis.ProbeError, "behind the saved cutoff"):
+            analysis.verify_indexed_history({"cutoff": 955836, "applicationGroups": []}, transport=transport)
 
 
 if __name__ == "__main__":

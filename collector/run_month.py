@@ -67,15 +67,17 @@ def main():
     parser.add_argument("--out",type=Path,default=Path("pokt-live-cache"))
     parser.add_argument("--resume",type=Path,help="Exact prior 30-day run.json; preserves services, window and cutoff")
     parser.add_argument("--end",help="UTC exclusive end date, otherwise use the current mature cutoff")
+    parser.add_argument("--cutoff",type=int,help="Fixed indexer height, to reproduce an earlier collection; default the latest")
     parser.add_argument("--workers",type=int,choices=range(1,5),default=2)
     parser.add_argument("--product-output",type=Path,default=Path("data/live-snapshot.json.gz"))
     parser.add_argument("--dry-run",action="store_true")
     args=parser.parse_args()
-    if args.resume and args.end:
-        parser.error("A resumed run keeps its original end date")
+    if args.resume and (args.end or args.cutoff):
+        parser.error("A resumed run keeps its original end date and cutoff")
     plan={"collectorVersion":VERSION, "days":30,"services":FIXED_SERVICES,"hoursUTC":[3,9,15,21],
           "settlementBufferDays":2,"workers":args.workers,"output":str(args.product_output),
-          "resume":str(args.resume) if args.resume else None,"endExclusive":args.end or "latest mature UTC boundary"}
+          "resume":str(args.resume) if args.resume else None,"endExclusive":args.end or "latest mature UTC boundary",
+          "cutoff":args.cutoff or "latest indexed height"}
     if args.resume:
         state=read_json(args.resume);config=state["config"]
         if (set(config["services"])!=set(FIXED_SERVICES) or dt(config["endExclusive"])-dt(config["start"])!=timedelta(days=30)
@@ -92,7 +94,7 @@ def main():
         return
     client=Client(args.out,args.workers)
     if not args.resume:
-        catalog=discover(client,args.end,max_services=8,target=.95)
+        catalog=discover(client,args.end,max_services=8,target=.95,cutoff=args.cutoff)
     snapshot=collect(client,catalog,30,FIXED_SERVICES,args.resume)
     audit=validate_month(snapshot)
     state=read_json(args.out/"latest.json")

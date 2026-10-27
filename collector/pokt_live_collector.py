@@ -44,12 +44,16 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 
+from session_catalog import (
+    PARAMS_QUERY, ROSTER_ERA_HEIGHT, block_times, config_at, param_at, roster_page, session_claims,
+    staked_suppliers, supplier_configs,
+)
+
 VERSION = "phase2-1.2"
 REGISTRY_SCHEMA_VERSION = 2
 PSL_SHA256 = "ba7d836c0ea57a8bcf9f1fcb868066a7554bed029b441ecc6204ad8494a32612"
 RESUMABLE_VERSIONS = {"phase2-1.0", "phase2-1.1", VERSION}
 CACHE_NAMESPACE = "phase2-1.0"  # Immutable request cache remains reusable across code fixes.
-SUPPORTED_PROTOCOL_COMMIT = 'a109dd0bae65c1d96b010d65f4cdc5bc77a50fc2'
 API = "https://sauron-api.infra.pocket.network"
 GRAPHQL = "https://data.pocket.network/graphql"
 RPC = "https://sauron-rpc.infra.pocket.network"
@@ -373,21 +377,40 @@ class Client:
         return results
 
 
-def discover(client, end=None, max_services=8, target=.95):
-    head = client.rest("/cosmos/base/tendermint/v1beta1/blocks/latest", fresh=True)["block"]["header"]
-    if head["chain_id"] != "pocket":
-        raise ValueError("Expected Pocket mainnet")
+def indexed_services(client, height):
+    """Every registered service at one height, from the indexer's Service entity."""
+    rows, total = [], None
+    for offset in range(0, 100000, 100):
+        conn = client.gql('query($h:String,$o:Int){services(first:100,offset:$o,blockHeight:$h,orderBy:ID_ASC)'
+                          '{totalCount nodes{id name computeUnitsPerRelay}}}', h=str(height), o=offset)["services"]
+        total = conn["totalCount"] if total is None else total
+        if conn["totalCount"] != total:
+            raise ValueError("Service count changed while paginating")
+        rows.extend({"id": s["id"], "name": s["name"], "compute_units_per_relay": s["computeUnitsPerRelay"]} for s in conn["nodes"])
+        if len(rows) >= total or not conn["nodes"]:
+            break
+    if len(rows) != total or len({s["id"] for s in rows}) != total:
+        raise ValueError("Incomplete or repeated service catalogue")
+    return rows
+
+
+def discover(client, end=None, max_services=8, target=.95, cutoff=None):
     indexed = client.gql('{_metadata{lastProcessedHeight chain} blocks(first:1,orderBy:ID_DESC){nodes{id timestamp}}}', fresh=True)
     meta = indexed["_metadata"]
     if meta["chain"] != "pocket":
         raise ValueError("Expected Pocket indexer")
-    cutoff = min(int(meta["lastProcessedHeight"]), int(indexed["blocks"]["nodes"][0]["id"]))
-    head_time = min(dt(head["time"]), dt(indexed["blocks"]["nodes"][0]["timestamp"]))
+    latest = min(int(meta["lastProcessedHeight"]), int(indexed["blocks"]["nodes"][0]["id"]))
+    # A fixed historical cutoff reproduces an earlier collection: services as registered then.
+    if cutoff is not None and not 0 < cutoff <= latest:
+        raise ValueError(f"Cutoff must be an indexed height no later than {latest}")
+    cutoff = latest if cutoff is None else cutoff
+    head = {"chain_id": meta["chain"], "height": str(latest), "time": indexed["blocks"]["nodes"][0]["timestamp"]}
+    head_time = dt(head["time"])
     safe_end = head_time.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=2)
     end_time = dt(end) if end else safe_end
     if end_time > safe_end or end_time != end_time.replace(hour=0, minute=0, second=0, microsecond=0):
         raise ValueError(f"Use a whole UTC end date no later than {safe_end.date()}")
-    service_rows = client.pages("/pokt-network/poktroll/service/service", "service", int(head["height"]))
+    service_rows = indexed_services(client, cutoff)
     services = [{"id": s["id"], "name": s.get("name") or s["id"],
                  "computeUnitsPerRelay": s.get("compute_units_per_relay")} for s in service_rows]
     # Explicit service list prevents top-by-settled from silently omitting services.
@@ -441,8 +464,9 @@ def resolve_schedule(client, start, end, hours):
     for day in range((dt(end)-dt(start)).days):
         times.extend(iso(dt(start)+timedelta(days=day, hours=h)) for h in hours)
     schedule = []
-    for offset in range(0, len(times), 24):
-        part = times[offset:offset+24]
+    # The indexer accepts at most 20 aliases per request.
+    for offset in range(0, len(times), 20):
+        part = times[offset:offset+20]
         fields = [f'b{i}:blocks(first:1,orderBy:ID_ASC,filter:{{timestamp:{{greaterThanOrEqualTo:{json.dumps(t)}}}}}){{nodes{{id timestamp}}}}' for i, t in enumerate(part)]
         result = client.gql("{" + " ".join(fields) + "}")
         for i, t in enumerate(part):
@@ -453,171 +477,85 @@ def resolve_schedule(client, start, end, hours):
     return schedule
 
 
-def session_grid(height, params):
-    n = integer(params['num_blocks_per_session'], 'blocks per session')
-    if n == 0:
-        raise ValueError('Invalid zero session length')
-    anchor = int(params.get('session_grid_anchor_height', 0))
-    number = int(params.get('session_number_at_anchor', 0))
-    if anchor <= 0 or anchor > height:
-        anchor, number = 1, 1
-    elif number <= 0:
-        number = 1
-    offset = (height-anchor)//n
-    start = anchor+offset*n
-    return start, start+n-1, number+offset
+def collect_point(client, point, service_ids, history, cutoff):
+    """One sample height from the pocketdex session catalog.
 
-
-def reconstructed_session(app, service, height, shared, block_hash, eligible, cap):
-    """Exact SHA3/ranking algorithm from poktroll v0.1.35; reconciled to REST.
-
-    Selection hashes the PREIMAGE, not the session ID digest. Go's uint64->int
-    conversion gives a signed 64-bit sort key. Both details are essential.
+    The sessions covering the height, their rosters and outcomes come from
+    getSessionRostersJson. A stake or config change takes effect at the next
+    session start, so eligible populations, owners and endpoints are the state
+    staked before the start of the session covering the height (start - 1),
+    which is the registry state the archive returned at the height. The authority
+    for N is the session: its candidates must equal the population.
     """
-    start, end, number = session_grid(height, shared)
-    seed = b'.'.join([bytes.fromhex(block_hash),service.encode(),app.encode(),start.to_bytes(8,'little')])
-    if len(bytes.fromhex(block_hash))!=32 or not eligible:
-        raise ValueError('Invalid session seed hash or zero eligible Suppliers')
-    def rank(address):
-        weight=hashlib.sha3_256(seed+b'.'+address.encode()).digest()
-        return int.from_bytes(weight[:8],'big',signed=True),address.encode()
-    selected=list(eligible) if len(eligible)<cap else sorted(eligible,key=rank)[:cap]
-    return {'header':{'session_id':hashlib.sha3_256(seed).hexdigest(),'service_id':service,
-                     'application_address':app,'session_start_block_height':str(start),'session_end_block_height':str(end)},
-            'suppliers':[{'operator_address':a} for a in selected], 'session_number':number}
-
-
-def application_services(app, height, session_end):
-    unstake=int(app.get('unstake_session_end_height',0))
-    pending=app.get('pending_transfer')
-    if unstake and session_end>unstake:
-        return []
-    if not unstake and pending and session_end>int(pending['session_end_height']):
-        return []
-    history=app.get('service_config_history')
-    if history:
-        return [u['service']['service_id'] for u in history
-                if int(u['activation_height'])<=height and (not int(u.get('deactivation_height',0)) or height<int(u['deactivation_height']))]
-    return [c['service_id'] for c in app.get('service_configs',[])]
-
-
-def collect_point(client, point, service_ids, roster_mode='reconstructed', verify_all=False, verify_index=0):
     height = point["height"]
-    suppliers = client.pages("/pokt-network/poktroll/supplier/supplier", "supplier", height, limit=10000, dehydrated="true")
-    applications = client.pages("/pokt-network/poktroll/application/application", "applications", height)
-    shared = client.rest('/pokt-network/poktroll/shared/params/'+str(height), height)['params']
-    start, end, number = session_grid(height, shared)
-    if start<=1:
-        raise ValueError('Genesis-era cap reconstruction is not supported')
-    # SetParams may write the NEXT session's pending cap immediately. Reading at
-    # start-1 yields the cap effective for this session on the pinned v0.1.35.
-    cap = integer(client.rest("/pokt-network/poktroll/session/params", start-1)["params"]["num_suppliers_per_session"], "effective session cap")
-    commit = client.request(RPC+'/commit?'+urllib.parse.urlencode({'height':start}),label='commit')['result']['signed_header']
-    if commit['header']['chain_id']!='pocket' or int(commit['header']['height'])!=start or int(commit['commit']['height'])!=start:
-        raise ValueError('Session seed block hash height or chain mismatch')
-    block_hash = commit['commit']['block_id']['hash']
-    active_apps={s:sorted((a for a in applications if s in application_services(a,height,end)),key=lambda a:a['address']) for s in service_ids}
-    nonempty_services=[s for s in service_ids if active_apps[s]]
-    verify_service=nonempty_services[verify_index%len(nonempty_services)] if nonempty_services else None
-    verifications=[]
-    populations, sessions = [], []
+    shared = {r["key"]: str(param_at(history, "shared", r["key"], height)) for r in history if r["namespace"] == "shared"}
+    start_time = iso(dt(point["observedAt"])-timedelta(hours=1))
+    rows, before = [], None
+    for _ in range(100):
+        page = roster_page(client, start_time, iso(dt(point["observedAt"])+timedelta(hours=2)), service_ids, before=before)
+        rows.extend(page)
+        if len(page) < 1000:
+            break
+        before = (int(page[-1]["start_height"]), page[-1]["session_id"])
+    covering = [r for r in rows if int(r["start_height"]) <= height <= int(r["end_height"])]
+    if not rows or int(rows[-1]["start_height"]) >= height-int(shared["num_blocks_per_session"]):
+        raise ValueError("Session catalog start range does not reach before the sample height")
+    starts = {int(r["start_height"]) for r in covering}
+    if len(starts) != 1:
+        raise ValueError(f"Sessions covering height {height} do not share one start")
+    start = starts.pop()
+    statuses = None
+    suppliers = staked_suppliers(client, start-1)
+    def eligible_for(service_id):
+        return {s["supplierId"] for s in suppliers if service_id in s["serviceIds"]}
+    candidates = {(r["service_id"], int(r["candidates"])) for r in covering}
+    if any(n != len(eligible_for(s)) for s, n in candidates):
+        # An Unstaking supplier can still be selected until its unbonding ends.
+        statuses = ["Staked", "Unstaking"]
+        suppliers = staked_suppliers(client, start-1, statuses)
+        if any(n != len(eligible_for(s)) for s, n in candidates):
+            raise ValueError(f"Eligible population disagrees with the session candidates at height {height}")
+    populations, sessions, claims = [], [], []
     for service_id in service_ids:
-        eligible = [s for s in suppliers if any(c["service_id"] == service_id for c in s.get("services", []))]
-        eligible_ids = {s["operator_address"] for s in eligible}
+        eligible_ids = eligible_for(service_id)
+        service_rows = sorted((r for r in covering if r["service_id"] == service_id), key=lambda r: r["application_id"])
+        cap = param_at(history, "session", "num_suppliers_per_session", start)
         population = {"id": f"{service_id}:{height}", "serviceId": service_id, **point,
                       "totalEligible": len(eligible_ids), "selectionCap": cap,
                       "eligibleSupplierIds": sorted(eligible_ids)}
         populations.append(population)
-        apps = active_apps[service_id]
-        for app_index, app in enumerate(apps):
-            derived=reconstructed_session(app['address'],service_id,height,shared,block_hash,
-                                           [s['operator_address'] for s in eligible],cap)
-            if roster_mode=='rest' or (app_index==0 and (verify_all or service_id==verify_service)):
-                actual = client.rest("/pokt-network/poktroll/session/get_session", height,
-                                     application_address=app["address"], service_id=service_id, block_height=height)["session"]
-                expected_header=derived['header']
-                for key in ('session_id','service_id','application_address','session_start_block_height','session_end_block_height'):
-                    if str(actual['header'][key])!=str(expected_header[key]):
-                        raise ValueError(f'Deterministic session reconciliation failed: {key} at height {height}')
-                actual_ids=[s['operator_address'] for s in actual['suppliers']]
-                derived_ids=[s['operator_address'] for s in derived['suppliers']]
-                agrees=set(actual_ids)==set(derived_ids) if len(eligible)<cap else actual_ids==derived_ids
-                if not agrees:
-                    raise ValueError(f'Deterministic roster or effective cap reconciliation failed at height {height}')
-                verifications.append({'serviceId':service_id,'applicationId':app['address'],'sessionId':expected_header['session_id'],'matchesRest':True})
-                result=actual
-            else:
-                result=derived
-            header = result["header"]
-            if header["service_id"] != service_id or header["application_address"] != app["address"]:
-                raise ValueError("Session service or Application mismatch")
-            if not int(header["session_start_block_height"]) <= height <= int(header["session_end_block_height"]):
-                raise ValueError("Sample height outside returned session")
-            selected = [s["operator_address"] for s in result.get("suppliers", [])]
+        for r in service_rows:
+            selected = r["member_ids"]
             if len(set(selected)) != len(selected) or not set(selected).issubset(eligible_ids):
                 raise ValueError("Session roster duplicates or not in pinned eligible population")
-            if len(selected) != min(cap, len(eligible_ids)):
+            if len(selected) != min(cap, len(eligible_ids)) or int(r["roster_size"]) != len(selected):
                 raise ValueError("Returned roster length disagrees with historical cap and population")
-            sessions.append({"id": header["session_id"], "serviceId": service_id,
-                             "applicationId": app["address"], "gatewayId": None,
+            sessions.append({"id": r["session_id"], "serviceId": service_id,
+                             "applicationId": r["application_id"], "gatewayId": None,
                              "populationId": population["id"], "startedAt": point["observedAt"],
                              "scheduledAt": point["scheduledAt"], "sampleHeight": height,
-                             "sessionStartHeight": int(header["session_start_block_height"]),
-                             "sessionEndHeight": int(header["session_end_block_height"]),
-                             "rosterSource": "archive_rest" if roster_mode=='rest' else "deterministic_reconstruction_with_rest_checks",
+                             "sessionStartHeight": int(r["start_height"]),
+                             "sessionEndHeight": int(r["end_height"]),
+                             "rosterSource": "session_catalog",
                              "selectedSupplierIds": selected, "selectedCount": len(selected), "rosterStatus": "complete"})
-    registry = normalized_registry(suppliers, service_ids)
-    if roster_mode=='reconstructed' and nonempty_services and not verifications:
-        raise ValueError('No REST roster reconciliation performed at this sample height')
-    return {"point": point, "populations": populations, "sessions": sessions, "registry": registry,
-            "registrySchemaVersion": REGISTRY_SCHEMA_VERSION,
-            "applicationCount": len(applications), 'sharedParams':shared,'sessionSeedBlockHash':block_hash,
-            'rosterVerifications':verifications}
+            claims.extend({**c, "numEstimatedRelays": None} for c in session_claims(r, {"cutoff": cutoff}, service_id))
+    staked = {s["supplierId"]: s for s in suppliers if any(sid in s["serviceIds"] for sid in service_ids)}
+    return {"point": point, "populations": populations, "sessions": sessions, "claims": claims,
+            "stakedSuppliers": [{"id": sid, "owner": s["ownerId"], "services": sorted(set(s["serviceIds"]) & set(service_ids))}
+                                for sid, s in sorted(staked.items())],
+            "eligibilityStakeStatuses": statuses or ["Staked"], "sharedParams": shared, "sessionStartHeight": start,
+            "claimedMembers": {r["session_id"]: int(r["claimed"]) for r in covering}}
 
 
-CLAIMS_QUERY = '''query($filter:EventClaimSettledFilter!,$after:Cursor,$payout:ModToAcctTransferFilter!){
- eventClaimSettleds(first:500,after:$after,orderBy:ID_ASC,filter:$filter){
- totalCount pageInfo{hasNextPage endCursor} nodes{id supplierId serviceId applicationId sessionId sessionEndHeight blockId
- numEstimatedRelays numEstimatedComputedUnits settledAmount settledDenom block{timestamp}
- allTransfers:modToAcctTransfers{totalCount}
- unknownTransfers:modToAcctTransfers(filter:{opReason:{equalTo:UNSPECIFIED}}){totalCount}
- modToAcctTransfers(filter:$payout){totalCount aggregates{sum{amount}}}}}}'''
-
-
-def collect_claims(client, task):
-    service_id, session_ids, cutoff = task
-    after, cursors, claims, total, ids = None, set(), [], None, set()
-    for page in range(10000):
-        result = client.gql(CLAIMS_QUERY, after=after,
-                            filter={"serviceId": {"equalTo": service_id}, "sessionId": {"in": session_ids}, "blockId": {"lessThanOrEqualTo": str(cutoff)}},
-                            payout={"denom": {"equalTo": "upokt"}, "opReason": {"in": PAYOUT_REASONS}})["eventClaimSettleds"]
-        if total is None:
-            total = result["totalCount"]
-        if result["totalCount"] != total:
-            raise ValueError("Claim count changed under fixed cutoff")
-        for c in result["nodes"]:
-            if c["id"] in ids or c["sessionId"] not in session_ids or c["serviceId"] != service_id or int(c["blockId"]) > cutoff:
-                raise ValueError("Duplicate or out-of-scope claim")
-            ids.add(c["id"])
-            transfers = c.pop("modToAcctTransfers")
-            amount = transfers["aggregates"]["sum"]["amount"]
-            if transfers["totalCount"] and amount is None:
-                raise ValueError("Payout aggregate absent for nonempty transfers")
-            c["payoutUpokt"] = str(integer(amount or 0))
-            c["payoutTransferCount"] = transfers["totalCount"]
-            # Never turn historical UNSPECIFIED attribution into earnings of zero.
-            c["payoutVerified"] = c["unknownTransfers"]["totalCount"] == 0 and c["allTransfers"]["totalCount"] > 0
-            claims.append(c)
-        info = result["pageInfo"]
-        if not info["hasNextPage"]:
-            if len(claims) != total:
-                raise ValueError("Claim pagination count mismatch")
-            return claims
-        after = info["endCursor"]
-        if not after or after in cursors or not result["nodes"]:
-            raise ValueError("Claim pagination made no progress")
-        cursors.add(after)
-    raise ValueError("Claim pagination did not finish")
+def point_registry(part, configs, service_ids):
+    """Registry at the sample height: owners and the endpoints declared before its session start."""
+    start = part["sessionStartHeight"]
+    raw = [{"operator_address": s["id"], "owner_address": s["owner"],
+            "services": [{"service_id": sid, "endpoints": config_at(configs, s["id"], sid, start)} for sid in s["services"]]}
+           for s in part["stakedSuppliers"]]
+    part.update(registry=normalized_registry(raw, service_ids),
+                registrySchemaVersion=REGISTRY_SCHEMA_VERSION)
+    return part
 
 
 def assemble(collected, claims, catalog, config, metrics):
@@ -686,7 +624,8 @@ def assemble(collected, claims, catalog, config, metrics):
                  totalPayoutPokt=sum(integer(c["payoutUpokt"]) for c in cs)/1e6 if complete else None,
                  supplierPayouts=[{"supplierId": c["supplierId"], "pokt": integer(c["payoutUpokt"])/1e6} for c in cs] if complete else [],
                  outcomeAvailableAt=max((iso(dt(c["block"]["timestamp"])) for c in cs), default=None),
-                 settledClaimCount=len(cs), indexedEstimatedRelays=sum(integer(c["numEstimatedRelays"]) for c in cs if c["numEstimatedRelays"] is not None))
+                 # The session catalog has no per-session estimated relays.
+                 settledClaimCount=len(cs), indexedEstimatedRelays=None)
     owners = defaultdict(list)
     for s in suppliers.values():
         s["serviceIds"] = sorted(s["serviceIds"])
@@ -722,7 +661,7 @@ def assemble(collected, claims, catalog, config, metrics):
                 "endpointCatalog": sorted(endpoint_catalog.values(), key=lambda e:e["id"]),
                 "applications": [{"id": a, "name": short_address(a), "gatewayId": None} for a in sorted({s['applicationId'] for s in sessions.values()})],
                 "populations": populations, "sessions": sorted(sessions.values(), key=lambda s: (s['startedAt'], s['id'])),
-                "liveSource": {"api": API, "graphql": GRAPHQL, "cutoff": config["cutoff"], "collectorVersion": VERSION,
+                "liveSource": {"api": GRAPHQL, "graphql": GRAPHQL, "cutoff": config["cutoff"], "collectorVersion": VERSION,
                     "config": config, "registeredServiceCount": len(catalog["services"]), "activityShare": activity_share,
                     "catalogFetchedAt": catalog["fetchedAt"], "activityWindow": catalog["activityWindow"],
                     "serviceSelection": {"targetShare": catalog["targetShare"], "maxServices": catalog["maxServices"],
@@ -851,7 +790,7 @@ def short_address(address):
     return address[:10] + "…" + address[-6:]
 
 
-def collect(client, catalog, days=30, service_ids=None, resume=None, hours=HOURS, roster_mode='reconstructed'):
+def collect(client, catalog, days=30, service_ids=None, resume=None, hours=HOURS):
     started = time.perf_counter()
     if resume:
         config = read_json(resume)["config"]
@@ -865,7 +804,7 @@ def collect(client, catalog, days=30, service_ids=None, resume=None, hours=HOURS
             raise ValueError("Unknown service ID")
         config = {"collectorVersion": VERSION, "start": iso(end-timedelta(days=days)), "endExclusive": iso(end),
                   "services": sorted(set(service_ids)), "hours": hours, "applicationPolicy": "all_historical",
-                  "rosterMode":roster_mode,
+                  "rosterMode":"session_catalog",
                   "cutoff": catalog["cutoff"], "settlementBufferDays": 2}
     run_dir = client.root / "runs" / digest(config)[:16]
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -878,56 +817,50 @@ def collect(client, catalog, days=30, service_ids=None, resume=None, hours=HOURS
     atomic_json(run_dir / "run.json", state)
     try:
         schedule = resolve_schedule(client, config["start"], config["endExclusive"], config["hours"])
-        if config.get('rosterMode','rest') in ('rest','reconstructed'):
-            version=client.rest('/cosmos/base/tendermint/v1beta1/node_info',fresh=True)['application_version']
-            if version.get('git_commit')!=SUPPORTED_PROTOCOL_COMMIT or version.get('version')!='0.1.35':
-                raise ValueError('Unsupported deployed protocol source; inspect and update the pinned protocol validation before collecting')
-            applied=client.rest('/cosmos/upgrade/v1beta1/applied_plan/v0.1.35')['height']
-            if any(p['height']<int(applied) for p in schedule):
-                raise ValueError('Collection is restricted to the verified v0.1.35 era')
-            state['protocolVerification']={'version':version,'upgradeHeight':int(applied),
-                                          'sourceCommit':SUPPORTED_PROTOCOL_COMMIT}
-            atomic_json(run_dir/'run.json',state)
+        if any(p['height']<ROSTER_ERA_HEIGHT for p in schedule):
+            raise ValueError("Collection is restricted to the catalog's session rosters")
+        history=client.gql(PARAMS_QUERY,keys=None)['getParamHistoryList']
         print(f"Collecting {len(schedule)} shared historical registries, services {config['services']}, all historical Applications.", flush=True)
-        point_indices={p['height']:i for i,p in enumerate(schedule)}
-        def point(p):
+        # Sequential: one sample height at a time against the shared public API.
+        collected=[]
+        for p in schedule:
             path = run_dir / "points" / (str(p["height"])+".json.gz")
-            if path.exists():
-                value = read_json(path)
-                if value.get("registrySchemaVersion") != REGISTRY_SCHEMA_VERSION:
-                    atomic_json(path, upgrade_point_registry(value, client, config["services"]))
-                return path
-            index=point_indices[p['height']]
-            value = collect_point(client, p, config["services"],config.get('rosterMode','rest'),
-                                  verify_all=index in (0,len(schedule)-1), verify_index=index)
-            atomic_json(path, value)
-            return path
-        collected = client.parallel(point, schedule)
-        sessions={};rest_checks=0
+            if not path.exists():
+                atomic_json(path, collect_point(client, p, config["services"], history, config["cutoff"]))
+            collected.append(path)
+        # Point files are streamed: one decoded registry at a time. Only points still
+        # without a registry need the members' config history.
+        pairs=set()
         for path in collected:
             part=read_json(path)
+            if part.get("registrySchemaVersion") != REGISTRY_SCHEMA_VERSION:
+                pairs.update((s['id'],sid) for s in part['stakedSuppliers'] for sid in s['services'])
+        configs=supplier_configs(client,sorted(pairs)) if pairs else {}
+        sessions={};claims=[]
+        for path in collected:
+            part=read_json(path)
+            if part.get("registrySchemaVersion") != REGISTRY_SCHEMA_VERSION:
+                atomic_json(path, point_registry(part, configs, config["services"]))
             shared=part['sharedParams']
             # Conservative upper guard on timing offsets, in addition to the UTC
             # two-day exclusion. Uses the historical effective settings.
             lag=sum(int(v) for k,v in shared.items() if k.endswith('_offset_blocks'))+2*int(shared['num_blocks_per_session'])
             if any(s['sessionEndHeight']+lag>=config['cutoff'] for s in part['sessions']):
                 raise ValueError('An observed session has not passed the conservative historical settlement guard')
-            rest_checks+=len(part.get('rosterVerifications',[]))
             for session in part['sessions']:
-                sessions.setdefault(session['id'],{'id':session['id'],'serviceId':session['serviceId']})
-        tasks = []
-        for sid in config["services"]:
-            ids = sorted(s["id"] for s in sessions.values() if s["serviceId"] == sid)
-            tasks.extend((sid, ids[i:i+80], config["cutoff"]) for i in range(0, len(ids), 80))
-        print(f"Querying settled payouts for {len(sessions)} unique sessions in {len(tasks)} batches.", flush=True)
-        claims = [c for batch in client.parallel(lambda t: collect_claims(client, t), tasks) for c in batch]
+                if session['id'] not in sessions:
+                    sessions[session['id']]=session
+                    claims.extend(c for c in part['claims'] if c['sessionId']==session['id'])
+        times=block_times(client,[c['blockId'] for c in claims],config,window=False)
+        for c in claims:
+            c['block']={'timestamp':times[int(c['blockId'])]}
+        print(f"Settled payouts for {len(sessions)} unique sessions from the session catalog.", flush=True)
         metrics = {"secondsThisInvocation": round(time.perf_counter()-started, 2), "httpAttemptsThisInvocation": len(client.metrics),
                    "wireBytesThisInvocation": sum(m['bytes'] for m in client.metrics), "sourceCacheRoot": "responses/"}
         snapshot = assemble(collected, claims, catalog, config, metrics)
-        snapshot['liveSource']['protocolVerification']=state.get('protocolVerification')
-        snapshot['liveSource']['rosterVerification']={'restSpotChecks':rest_checks,
-                    'sourceCommit':SUPPORTED_PROTOCOL_COMMIT if config.get('rosterMode')=='reconstructed' else None,
-                    'rule':'First Application of every service at the first and last sample; one rotating service at every other sampled height.'}
+        snapshot['liveSource']['rosterVerification']={'source':'getSessionRostersJson','rostersFromHeight':ROSTER_ERA_HEIGHT,
+                    'eligibilityStakeStatuses':sorted({s for path in collected for s in read_json(path)['eligibilityStakeStatuses']}),
+                    'rule':'Every eligible population equals the candidates of the sessions covering its height.'}
         atomic_json(run_dir / "snapshot.json.gz", snapshot)
         # Same evidence, compact wire representation for a fast static product.
         supplier_index={s['id']:i for i,s in enumerate(snapshot['suppliers'])}
@@ -962,8 +895,6 @@ def main():
     p.add_argument("--workers", type=int, default=2, choices=range(1, 5),help='Two workers limit registry decode memory; up to four when resources permit')
     p.add_argument("--resume", type=Path, help="Exact previous run.json; retains cutoff and sampling frame")
     p.add_argument('--reuse-catalog',action='store_true',help='Start a new run with the saved screening window and cutoff; new collections refresh the catalogue by default')
-    p.add_argument('--roster-mode',choices=['reconstructed','rest'],default='reconstructed',
-                   help='Exact locally reconstructed rosters with REST checks, or every roster directly from REST')
     args = p.parse_args()
     if not 1 <= args.days <= 90 or not 1 <= args.max_services <= 50 or not 0 < args.activity_share <= 1:
         p.error("Use days 1–90, max-services 1–50, activity-share (0,1]")
@@ -985,7 +916,7 @@ def main():
         services = FIXED_SERVICES if args.fixed_eight else [s.strip() for s in args.services.split(",")] if args.services else None
         if args.resume and services and set(services) != set(read_json(args.resume)["config"]["services"]):
             p.error("Resume service list differs from the frozen run")
-        collect(client, catalog, args.days, services, args.resume, roster_mode=args.roster_mode)
+        collect(client, catalog, args.days, services, args.resume)
 
 
 if __name__ == "__main__":

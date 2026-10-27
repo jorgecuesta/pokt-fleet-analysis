@@ -19,15 +19,16 @@ import sqlite3
 import threading
 import time
 import urllib.parse
+from datetime import timedelta
 from pathlib import Path
 
 import settlement_collect as original
-from pokt_live_collector import Client, PAYOUT_REASONS, RPC, SUPPORTED_PROTOCOL_COMMIT
+from pokt_live_collector import Client, PAYOUT_REASONS, RPC
 from pokt_live_collector import atomic_json, digest, dt, iso, read_json, suffix_rules, utcnow
 
 VERSION = 'staged-settlement-1.0'
 SOURCE_COMMIT = 'fc0eb630771b96e157caa38cd687f867dc152dd2'
-EXPECTED_COLLECTOR_SHA = '5e8b3bc482a336a82fcd231f13e580cbd0580258377d0f6b8619456921412214'
+EXPECTED_COLLECTOR_SHA = '83a42d8abc678dc8893c112f3f4dde37cf260f2e691196ef5e22c940700ccd70'
 MODES = ('offline', 'investigate', '7d', '14d', '30d')
 RELAY_REASONS = {'TLM_RELAY_BURN_EQUALS_MINT_SUPPLIER_SHAREHOLDER_REWARD_DISTRIBUTION', PAYOUT_REASONS[0]}
 GLOBAL_REASONS = {'TLM_GLOBAL_MINT_SUPPLIER_SHAREHOLDER_REWARD_DISTRIBUTION', PAYOUT_REASONS[1]}
@@ -201,32 +202,27 @@ def reconcile_control(indexed, on_chain):
 
 
 def session_claims(client, session, config, bounds):
-    filt = {**original.claim_filter(config, 'eth', bounds), 'sessionId': {'equalTo': session['id']}}
-    total = original.nat(client.gql(original.COUNT_QUERY, filter=filt, fresh=True)['eventClaimSettleds']['totalCount'], 'session claim count')
-    payout = {'denom': {'equalTo': 'upokt'}, 'opReason': {'in': PAYOUT_REASONS}}
-    reasons = [{'denom': {'equalTo': 'upokt'}, 'opReason': {'equalTo': r}} for r in PAYOUT_REASONS]
-    rows, after, cursors = [], None, set()
-    for _ in range(10):
-        conn, _ = original.claim_page(client, {'filter': filt, 'after': after, 'payout': payout,
-                                             'relay': reasons[0], 'global': reasons[1]}, 100)
-        if type(conn['pageInfo']['hasNextPage']) is not bool or len(conn['nodes']) > 100:
-            raise ValueError('Invalid diagnostic claim page')
-        new = [original.normalize_claim(r, config, 'eth', bounds) for r in conn['nodes']]
-        if any(r['sessionId'] != session['id'] or r['applicationId'] != session['applicationId']
-               or int(r['sessionEndHeight']) != session['sessionEndHeight'] for r in new):
-            raise ValueError('Diagnostic claims returned another historical session')
-        rows.extend(new)
-        if len({r['supplierId'] for r in rows}) != len(rows) or len(rows) > total:
-            raise ValueError('Diagnostic claims are repeated or exceed their count')
-        if not conn['pageInfo']['hasNextPage']:
-            if len(rows) != total:
-                raise ValueError('Incomplete diagnostic pagination')
-            return rows
-        after = conn['pageInfo']['endCursor']
-        if not new or not after or after in cursors:
-            raise ValueError('Diagnostic cursor made no progress')
-        cursors.add(after)
-    raise ValueError('Diagnostic exceeded its bounded page budget')
+    rows = original.roster_page(client, None, None, session_ids=[session['id']])
+    if len(rows) != 1 or rows[0]['application_id'] != session['applicationId'] or rows[0]['service_id'] != 'eth':
+        raise ValueError('Diagnostic catalog row is missing or belongs to another session')
+    if original.nat(rows[0]['end_height'], 'session end') != session['sessionEndHeight']:
+        raise ValueError('Diagnostic claims returned another historical session')
+    return original.session_claims(rows[0], config, 'eth')
+
+
+def group_claims(client, config, bounds, application, cutoff):
+    """Settled claims of one Application's eth sessions ending in the window, as of a cutoff."""
+    start = iso(dt(bounds['start']['timestamp'])-timedelta(hours=1))
+    end = iso(dt(bounds['end']['timestamp'])+timedelta(hours=2))
+    total, before = 0, None
+    for _ in range(1000):
+        rows = original.roster_page(client, start, end, ['eth'], before=before, applications=[application])
+        total += sum(len(original.session_claims(r, {'cutoff': cutoff}, 'eth')) for r in rows
+                     if r['application_id'] == application and bounds['start']['height'] <= original.nat(r['end_height'], 'end') < bounds['end']['height'])
+        if len(rows) < original.PAGE_SIZE:
+            return total
+        before = (original.nat(rows[-1]['start_height'], 'start'), rows[-1]['session_id'])
+    raise ValueError('Diagnostic group count exceeded its page budget')
 
 
 def diagnose_missingness(groups, checks, extra_events, errors):
@@ -266,13 +262,13 @@ def investigate(root, reference_path, pair_count=3, progress=print, client=None)
               'startedAt': iso(utcnow()), 'laterCutoffIsSeparate': True, 'originalSampledCoverageUnchanged': True}
     try:
         metadata = client.gql('{_metadata{chain lastProcessedHeight}}', fresh=True)['_metadata']
-        head = client.rest('/cosmos/base/tendermint/v1beta1/blocks/latest', fresh=True)['block']['header']
         status = client.request(RPC+'/status', label='rpc-status', fresh=True)
         if status.get('error') or status.get('result', {}).get('node_info', {}).get('network') != 'pocket':
             raise ValueError('RPC is unavailable or not Pocket mainnet')
-        if metadata['chain'] != 'pocket' or head['chain_id'] != 'pocket':
-            raise ValueError('Indexer or archive is not Pocket mainnet')
-        later = min(original.nat(metadata['lastProcessedHeight'], 'indexer height'), original.nat(head['height'], 'archive head'))
+        if metadata['chain'] != 'pocket':
+            raise ValueError('Indexer is not Pocket mainnet')
+        head = original.nat(status['result']['sync_info']['latest_block_height'], 'RPC head')
+        later = min(original.nat(metadata['lastProcessedHeight'], 'indexer height'), head)
         if later < original.CUTOFF:
             raise ValueError('Sources are behind the fixed historical cutoff')
         report.update(indexerMetadata=metadata, laterCutoff=later)
@@ -282,9 +278,7 @@ def investigate(root, reference_path, pair_count=3, progress=print, client=None)
             group = selected[kind]
             counts = []
             for cutoff in (original.CUTOFF, later):
-                filt = {**original.claim_filter({**config, 'cutoff': cutoff}, 'eth', bounds),
-                        'applicationId': {'equalTo': group['applicationId']}}
-                counts.append(original.nat(client.gql(original.COUNT_QUERY, filter=filt, fresh=True)['eventClaimSettleds']['totalCount'], 'group claims'))
+                counts.append(group_claims(client, config, bounds, group['applicationId'], cutoff))
             report['groups'].append({'kind': kind, 'serviceId': 'eth', 'applicationId': group['applicationId'],
                                      'originalCutoffClaims': counts[0], 'laterCutoffClaims': counts[1]})
         blocks = {}
@@ -359,14 +353,11 @@ def collect14(root, reference_path, pilot_report, progress=print, client=None):
         meta = client.gql('{_metadata{chain lastProcessedHeight}}', fresh=True)['_metadata']
         if meta['chain'] != 'pocket' or original.nat(meta['lastProcessedHeight'], 'indexer height') < config['cutoff']:
             raise ValueError('Wrong chain or indexer behind the fixed cutoff')
-        version = client.rest('/cosmos/base/tendermint/v1beta1/node_info', fresh=True)['application_version']
-        if version.get('version') != '0.1.35' or version.get('git_commit') != SUPPORTED_PROTOCOL_COMMIT:
-            raise ValueError('Protocol changed; review the historical API before continuing')
-        applied = original.nat(client.rest('/cosmos/upgrade/v1beta1/applied_plan/v0.1.35')['height'], 'upgrade height')
         bounds = original.resolve_boundaries(client, config)
-        if bounds['start']['height'] < applied:
-            raise ValueError('Window predates the validated protocol era')
-        state.update(indexerMetadata=meta, boundaryBlocks=bounds, protocolVerification={k: version[k] for k in ('version', 'git_commit')})
+        if bounds['start']['height'] < original.ROSTER_ERA_HEIGHT:
+            raise ValueError("Window predates the catalog's session rosters")
+        state.update(indexerMetadata=meta, boundaryBlocks=bounds,
+                     rosterSource={'api': original.GRAPHQL, 'function': 'getSessionRostersJson', 'rostersFromHeight': original.ROSTER_ERA_HEIGHT})
         atomic_json(directory/'run.json', state)
         progress('14d: eight services, all indexed Applications; fixed original cutoff.')
         for service in config['services']:
@@ -377,9 +368,6 @@ def collect14(root, reference_path, pilot_report, progress=print, client=None):
         evidence = original.compact_evidence(db, config)
         if not overlap['passed'] or evidence['coverage']['unknownDistributionClaims']:
             raise ValueError('Reconciliation needs review before monthly expansion')
-        for service in config['services']:
-            if original.count_claims(client, config, service, bounds) != db.execute('SELECT total FROM services WHERE service=?', (service,)).fetchone()[0]:
-                raise ValueError('Final indexed count changed during extraction')
         artifact = directory/'settlement-evidence.json.gz'
         atomic_json(artifact, evidence)
         state.update(status='reconciled', completedAt=iso(utcnow()), overlap=overlap, coverage=evidence['coverage'],

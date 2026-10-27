@@ -21,7 +21,7 @@ def verify(path):
     assert notebook["nbformat"] == 4
     assert len({c["id"] for c in notebook["cells"]}) == len(notebook["cells"])
     staged = "pokt_staged_collection" in notebook["metadata"]
-    expected_tests=62 if staged else 34
+    expected_tests=65 if staged else 34
     code_cells = [c for c in notebook["cells"] if c["cell_type"] == "code"]
     assert all(c["execution_count"] is None and not c["outputs"] for c in code_cells)
     for c in code_cells:
@@ -46,7 +46,7 @@ def verify(path):
             assert env["MODE"] == "offline" and env["RESULT"] is None
             assert env["checked"].returncode == 0
             assert f"Ran {expected_tests} tests" in env["checked"].stderr
-            assert hashlib.sha256((env["WORK_DIR"]/"collector/pokt_live_collector.py").read_bytes()).hexdigest() == "7c0b96b0802b945523a6802ce06bc84124d5ffb4dc2b7b50218e99bdbcc93c27"
+            assert hashlib.sha256((env["WORK_DIR"]/"collector/pokt_live_collector.py").read_bytes()).hexdigest() == "276dbcfbca30913152bc2868c95799063bf7a88ac077ac84b9d78e75faa6b57f"
             assert not (env["WORK_DIR"]/"cache/responses").exists()
             included = notebook["metadata"]["pokt_staged_collection" if staged else "pokt_settlement"]["pilotIncluded"]
             assert (env["EVIDENCE"] is not None) == included

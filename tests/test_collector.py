@@ -136,27 +136,63 @@ class CollectorTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'Missing or duplicated'):
                     run_month.main()
             self.assertEqual(output.read_bytes(),original)
-    def test_protocol_matches_recorded_rest_rosters(self):
-        vectors = c.read_json(ROOT / "tests/fixtures/session-reconciliation.json.gz")
-        self.assertEqual(vectors["protocolCommit"], c.SUPPORTED_PROTOCOL_COMMIT)
-        for v in vectors["vectors"]:
-            with self.subTest(service=v["serviceId"]):
-                result = c.reconstructed_session(v["applicationId"], v["serviceId"], v["sampleHeight"], v["sharedParams"], v["blockHash"], v["eligible"], v["cap"])
-                self.assertTrue(v["restReconciled"])
-                self.assertEqual(result["header"]["session_id"], v["expectedId"])
-                self.assertEqual([s["operator_address"] for s in result["suppliers"]], v["expectedSuppliers"])
+    def catalog_point(self, staked, unstaking, candidates):
+        """A sample height served by a fake session catalog: one eth session covering it."""
+        point = {"height": 909736, "observedAt": "2026-09-06T03:00:23Z", "scheduledAt": "2026-09-06T03:00:00Z"}
+        history = [{"namespace": "session", "key": "num_suppliers_per_session", "activeAt": "296559", "value": "2"},
+                   {"namespace": "shared", "key": "num_blocks_per_session", "activeAt": "831001", "value": "20"}]
+        session = {"session_id": "s", "service_id": "eth", "application_id": "app", "start_height": "909721", "end_height": "909740",
+                   "phase": "settled", "settled_height": "909773", "money_missing": False, "candidates": str(candidates),
+                   "roster_size": "2", "claimed": "1", "member_ids": ["a", "b"], "member_states": ["paid", "idle_others_worked"],
+                   "member_paid_upokt": ["5", "0"], "member_owner_ids": ["o", "o"]}
+        older = {**session, "session_id": "r", "start_height": "909701", "end_height": "909720"}
+        calls = []
+        class Catalog:
+            def gql(self, query, **v):
+                calls.append(v.get("statuses"))
+                if "getStakedSuppliersList" in query:
+                    rows = staked + (unstaking if v["statuses"] else [])
+                    return {"getStakedSuppliersList": [{"supplierId": i, "ownerId": "o", "serviceIds": ["eth"], "height": "909720"} for i in rows]}
+                return {"getSessionRostersJson": {"range": {"covered_from": "2026-09-06T00:00:00Z", "covered_to": "2026-09-06T06:00:00Z", "gaps": []},
+                                                  "data": [session, older]}}
+        return c.collect_point(Catalog(), point, ["eth"], history, 955836), calls
 
-    def test_application_activation_transfer_and_unstake_boundaries(self):
-        app = {"service_config_history": [{"service": {"service_id": "old"}, "activation_height": 1, "deactivation_height": 100}, {"service": {"service_id": "new"}, "activation_height": 100, "deactivation_height": 0}]}
-        self.assertEqual(c.application_services(app, 99, 100), ["old"])
-        self.assertEqual(c.application_services(app, 100, 120), ["new"])
-        app["unstake_session_end_height"] = 120
-        self.assertEqual(c.application_services(app, 100, 120), ["new"])
-        self.assertEqual(c.application_services(app, 100, 140), [])
-        app.pop("unstake_session_end_height")
-        app["pending_transfer"] = {"session_end_height": 120}
-        self.assertEqual(c.application_services(app, 100, 120), ["new"])
-        self.assertEqual(c.application_services(app, 100, 140), [])
+    def test_population_equals_the_session_candidates_with_an_unstaking_retry(self):
+        part, calls = self.catalog_point(["a", "b"], [], 2)
+        self.assertEqual(part["populations"][0]["totalEligible"], 2)
+        self.assertEqual(part["eligibilityStakeStatuses"], ["Staked"]); self.assertEqual(part["sessionStartHeight"], 909721)
+        self.assertEqual([s["id"] for s in part["sessions"]], ["s"])
+        self.assertEqual([(cl["supplierId"], cl["payoutUpokt"]) for cl in part["claims"]], [("a", "5")])
+        part, calls = self.catalog_point(["a", "b"], ["u"], 3)
+        self.assertEqual(part["populations"][0]["eligibleSupplierIds"], ["a", "b", "u"])
+        self.assertEqual(part["eligibilityStakeStatuses"], ["Staked", "Unstaking"])
+        with self.assertRaisesRegex(ValueError, "disagrees with the session candidates"):
+            self.catalog_point(["a", "b"], [], 7)
+
+    def test_registry_uses_the_config_declared_before_the_session_start(self):
+        part = {"point": {"height": 913630}, "sessionStartHeight": 913621, "stakedSuppliers": [{"id": "pokt1w42je6m6yy76mrxlze7cz5xmm5qrelc9yn8pwh", "owner": "pokt1h6cunl6j4sqtu9kmjzf6wumvhjj0t2wl2y44u0", "services": ["eth"]}]}
+        rows = [{"first_height": "901731", "last_height": "913615", "endpoints": [{"url": "https://old.example", "rpcType": "3"}]},
+                {"first_height": "913616", "last_height": None, "endpoints": [{"url": "wss://new.example/", "rpcType": "2"}]}]
+        result = c.point_registry(copy.deepcopy(part), {(part["stakedSuppliers"][0]["id"], "eth"): rows}, ["eth"])
+        self.assertEqual(result["registry"][0]["hosts"], ["new.example"])
+        self.assertEqual(result["registry"][0]["endpoints"][0]["rpcType"], "WEBSOCKET")
+        part["sessionStartHeight"] = 913616
+        self.assertEqual(c.point_registry(copy.deepcopy(part), {(part["stakedSuppliers"][0]["id"], "eth"): rows}, ["eth"])["registry"][0]["hosts"], ["old.example"])
+
+    def test_service_catalogue_is_complete_at_the_cutoff_height(self):
+        pages = [[{"id": f"s{i}", "name": f"S{i}", "computeUnitsPerRelay": "1"} for i in range(100)], [{"id": "last", "name": "Last", "computeUnitsPerRelay": "2"}]]
+        seen = []
+        class Services:
+            def gql(self, query, **v):
+                seen.append((v["h"], v["o"]))
+                return {"services": {"totalCount": 101, "nodes": pages[v["o"]//100]}}
+        rows = c.indexed_services(Services(), 955836)
+        self.assertEqual(len(rows), 101); self.assertEqual(seen, [("955836", 0), ("955836", 100)])
+        class Short(Services):
+            def gql(self, query, **v):
+                return {"services": {"totalCount": 102, "nodes": pages[v["o"]//100] if v["o"] < 200 else []}}
+        with self.assertRaisesRegex(ValueError, "Incomplete"):
+            c.indexed_services(Short(), 955836)
 
     def test_streamed_assembly_preserves_dated_ownership_and_unknown_payouts(self):
         catalog = {"selectedServices": ["svc"], "services": [{"id": "svc", "name": "Example"}], "activityShare": .8, "fetchedAt": "2026-10-08T00:00:00Z", "activityWindow": {"start": "2026-09-29T00:00:00Z", "endExclusive": "2026-10-06T00:00:00Z"}, "targetShare": .95, "maxServices": 8, "selectionRule": "indexed compute"}
@@ -223,15 +259,14 @@ class CollectorTests(unittest.TestCase):
                 discover.assert_not_called()
                 self.assertEqual(collect.call_args.args[1]['cutoff'],50)
 
-    def test_unsupported_protocol_leaves_a_failed_run_and_no_published_snapshot(self):
+    def test_heights_before_the_catalog_rosters_leave_a_failed_run_and_no_published_snapshot(self):
         with tempfile.TemporaryDirectory() as folder:
             client=c.Client(folder)
-            client.rest=lambda *a,**k:{'application_version':{'version':'unknown','git_commit':'unknown'}}
             catalog={'endExclusive':'2026-10-06T00:00:00Z','selectedServices':['svc'],'services':[{'id':'svc'}],'cutoff':999}
-            point={'height':888888,'observedAt':'2026-10-05T03:00:00Z'}
-            with patch.object(c,'resolve_schedule',return_value=[point]):
-                with self.assertRaisesRegex(ValueError,'Unsupported deployed protocol'):
-                    c.collect(client,catalog,days=1,roster_mode='rest')
+            point={'height':c.ROSTER_ERA_HEIGHT-1,'observedAt':'2026-10-05T03:00:00Z'}
+            with patch.object(c,'resolve_schedule',return_value=[point]), patch("urllib.request.urlopen", side_effect=AssertionError("No network")):
+                with self.assertRaisesRegex(ValueError,"catalog's session rosters"):
+                    c.collect(client,catalog,days=1)
             runs=list((Path(folder)/'runs').iterdir())
             self.assertEqual(len(runs),1)
             self.assertEqual(c.read_json(runs[0]/'run.json')['status'],'failed')

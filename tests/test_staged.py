@@ -25,7 +25,7 @@ class StagedTests(unittest.TestCase):
     def test_seven_and_month_plans_keep_original_cache_identities(self):
         self.assertEqual(s.plan('7d'), original.plan('pilot'))
         self.assertEqual(s.plan('30d'), original.plan('month'))
-        self.assertEqual(s.run_dir(Path('cache'), '30d').name, '884aa1493d5a89a7')
+        self.assertEqual(s.run_dir(Path('cache'), '30d').name, '157cf9d485d5a879')
 
     def test_fortnight_is_same_cutoff_all_services_and_exactly_fourteen_days(self):
         plan = s.plan('14d')
@@ -176,31 +176,28 @@ class StagedTests(unittest.TestCase):
                 if attr['key'] in values:
                     attr['value'] = json.dumps(values[attr['key']])
             return event
-        claim = {'id': 'claim-1', 'supplierId': supplier, 'serviceId': 'eth', 'applicationId': control['applicationId'],
-                 'sessionId': control['id'], 'sessionEndHeight': str(control['sessionEndHeight']), 'blockId': str(height),
-                 'settledAmount': '23265', 'settledDenom': 'upokt', 'block': {'timestamp': control['observedAt']},
-                 'allTransfers': {'totalCount': 6}, 'unknownTransfers': {'totalCount': 0},
-                 'supplierTransfers': {'totalCount': 2, 'aggregates': {'sum': {'amount': '17919'}}},
-                 'relayTransfers': {'totalCount': 2, 'aggregates': {'sum': {'amount': '17919'}}},
-                 'globalTransfers': {'totalCount': 0, 'aggregates': {'sum': {'amount': None}}}}
+        def roster(session, state, paid):
+            return {'session_id': session['id'], 'service_id': 'eth', 'application_id': session['applicationId'],
+                    'start_height': str(session['sessionEndHeight']-19), 'end_height': str(session['sessionEndHeight']),
+                    'phase': 'settled', 'settled_height': str(height), 'money_missing': False, 'roster_size': '1',
+                    'member_ids': [supplier], 'member_states': [state], 'member_paid_upokt': [paid], 'member_owner_ids': [supplier]}
+        rows = {control['id']: roster(control, 'paid', '17919'), missing['id']: roster(missing, 'idle_no_work', '0')}
+        coverage = {'covered_from': '2026-09-28T00:00:00Z', 'covered_to': '2026-10-07T00:00:00Z', 'gaps': []}
         class Source:
             metrics = []
             def gql(self, query, **variables):
                 if '_metadata' in query:
                     return {'_metadata': {'chain': 'pocket', 'lastProcessedHeight': 959000}}
-                filt = variables['filter']
-                known = filt.get('applicationId', {}).get('equalTo') == control['applicationId'] or filt.get('sessionId', {}).get('equalTo') == control['id']
-                if query == original.COUNT_QUERY:
-                    return {'eventClaimSettleds': {'totalCount': int(known)}}
-                return {'eventClaimSettleds': {'nodes': [claim] if known else [], 'pageInfo': {'hasNextPage': False, 'endCursor': None}}}
-            def rest(self, *args, **kwargs):
-                return {'block': {'header': {'chain_id': 'pocket', 'height': '959000'}}}
+                found = [r for r in rows.values() if r['session_id'] in (variables['ids'] or [])
+                         or r['application_id'] in (variables['apps'] or [])]
+                return {'getSessionRostersJson': {'range': coverage, 'data': copy.deepcopy(found)}}
             def request(self, url, **kwargs):
                 if url.endswith('/status'):
-                    return {'result': {'node_info': {'network': 'pocket'}}}
+                    return {'result': {'node_info': {'network': 'pocket'}, 'sync_info': {'latest_block_height': '959000'}}}
                 return {'result': {'height': str(height), 'finalize_block_events': [event_for(control), event_for(missing)]}}
         with tempfile.TemporaryDirectory() as folder, patch.object(s, 'choose_pairs', return_value=picked), \
-                patch.object(original, 'resolve_boundaries', return_value={'start': {'height': 942171}, 'end': {'height': 952159}}):
+                patch.object(original, 'resolve_boundaries', return_value={'start': {'height': 942171, 'timestamp': '2026-09-29T00:00:10Z'},
+                                                                            'end': {'height': 952159, 'timestamp': '2026-10-06T00:00:09Z'}}):
             result = s.investigate(folder, ROOT/'collector/settlement-reference.json.gz', pair_count=1, client=Source(), progress=lambda _: None)
             self.assertEqual(result['errors'], [])
             self.assertTrue(result['checks'][0]['control']['passed'])

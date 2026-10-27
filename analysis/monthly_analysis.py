@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-EXPECTED_SHA256 = "059ffa4dba60e0c4e3f0f3810cdf778c87d09560c65a701735de5777b84b3b57"
+EXPECTED_SHA256 = "feeebfbb120044a782dd60f1879c0613924cb259b7eb528d5f74659055842088"
 SERVICES = ["arb-one", "base", "bsc", "eth", "opbnb", "poly", "robinhood", "solana"]
 GRAPHQL = "https://data.pocket.network/graphql"
 
@@ -221,32 +221,64 @@ def graphql_request(query, variables=None, transport=None):
     return result["data"]
 
 
-def verify_indexed_history(report, max_groups=4, transport=None):
-    """Bounded check: any indexed history through the original cutoff?
+LATE_QUERY = ('query($a:Datetime,$b:Datetime,$apps:[String],$services:[String]){getSessionRostersJson('
+              'rangeStart:$a,rangeEnd:$b,applications:$apps,services:$services,rowLimit:1000)}')
 
-    A historical result may be outside this month's window. It cannot settle
-    missing sampled outcomes, establish full traffic or prove true inactivity.
+
+def iso(value):
+    # Indexer block timestamps omit the UTC suffix.
+    value = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def verify_indexed_history(report, max_groups=4, transport=None):
+    """Bounded check: any indexed settled claims through the original cutoff?
+
+    Counts come from the pocketdex session catalog: getNetworkSessionsJson over every
+    session that started before the cutoff block, as far back as the catalog's
+    rosters reach (covered_from). A historical result may be outside this month's
+    window. It cannot settle missing sampled outcomes, establish full traffic or
+    prove true inactivity.
     """
     if not isinstance(max_groups, int) or not 1 <= max_groups <= 19:
         raise ValueError("max_groups must be between 1 and 19")
-    schema = graphql_request('query{_metadata{lastProcessedHeight chain} __type(name:"EventClaimSettledFilter"){inputFields{name}}}', transport=transport)
-    fields = {f["name"] for f in (schema.get("__type") or {}).get("inputFields", [])}
-    if not {"applicationId", "serviceId", "blockId"} <= fields:
-        raise ProbeError("Indexer filter schema differs or introspection is unavailable. Stop; do not guess query fields.")
-    if int(schema["_metadata"]["lastProcessedHeight"]) < report["cutoff"]:
+    cutoff = int(report["cutoff"])
+    head = graphql_request('query{_metadata{lastProcessedHeight chain} blocks(first:1,filter:{id:{equalTo:"%d"}}){nodes{id timestamp}}}' % cutoff,
+                           transport=transport)
+    if int(head["_metadata"]["lastProcessedHeight"]) < cutoff:
         raise ProbeError("Indexer is behind the saved cutoff; history results would be incomplete")
+    blocks = (head.get("blocks") or {}).get("nodes") or []
+    if len(blocks) != 1 or int(blocks[0]["id"]) != cutoff:
+        raise ProbeError("The cutoff block is not indexed. Stop; do not guess its time.")
+    cutoff_time = iso(date(blocks[0]["timestamp"]))  # The catalog requires an explicit zone.
     targets = [r for r in report["applicationGroups"] if r["covered"] == 0][:max_groups]
-    query = '''query($filter:EventClaimSettledFilter!){eventClaimSettleds(first:5,filter:$filter){totalCount nodes{id applicationId serviceId sessionId sessionEndHeight blockId block{timestamp}}}}'''
-    results = []
+    query = ('query($b:Datetime,$apps:[String],$services:[String]){getNetworkSessionsJson('
+             'rangeEnd:$b,applications:$apps,services:$services,byService:true,byApplication:true)}')
+    results, requests = [], 1+len(targets)
     for row in targets:
-        result = graphql_request(query, {"filter": {"applicationId": {"equalTo": row["applicationId"]},
-                  "serviceId": {"equalTo": row["serviceId"]}, "blockId": {"lessThanOrEqualTo": str(report["cutoff"])}}}, transport)
-        claims = result["eventClaimSettleds"]
+        answer = graphql_request(query, {"b": cutoff_time, "apps": [row["applicationId"]], "services": [row["serviceId"]]}, transport)["getNetworkSessionsJson"]
+        if answer["range"].get("gaps"):
+            raise ProbeError("Session catalog reports a settlement gap; history results would be incomplete")
+        rows = [r for r in answer["data"] if r["application_id"] == row["applicationId"] and r["service_id"] == row["serviceId"]]
+        count = sum(int(r["paid"])+int(r["settled_zero"]) for r in rows)
+        if any(int(r["last_height"] or 0) > cutoff for r in rows):
+            # Sessions started shortly before the cutoff block settle after it (about 50
+            # blocks later): remove their seats so the count is through the cutoff.
+            late = graphql_request(LATE_QUERY, {"a": iso(date(cutoff_time)-timedelta(hours=2)), "b": cutoff_time,
+                                                "apps": [row["applicationId"]], "services": [row["serviceId"]]}, transport)["getSessionRostersJson"]
+            if late["range"].get("gaps") or len(late["data"]) >= 1000:
+                raise ProbeError("Cannot isolate the sessions settled after the cutoff")
+            count -= sum(state in ("paid", "settled_zero") for r in late["data"]
+                         if r["settled_height"] is not None and int(r["settled_height"]) > cutoff for state in r["member_states"])
+            requests += 1
+            if count < 0:
+                raise ProbeError("Late-settlement correction exceeds the history count")
         results.append({"serviceId": row["serviceId"], "applicationId": row["applicationId"],
-                        "indexedHistoryCountThroughCutoff": claims["totalCount"], "exampleClaims": claims["nodes"],
-                        "interpretation": "Indexed history only. Not a monthly total, verified inactivity, or a replacement for unknown session payouts."})
-    return {"checkedAt": datetime.now(timezone.utc).isoformat(), "cutoff": report["cutoff"],
-            "indexerMetadata": schema["_metadata"], "requestCount": 1+len(targets), "results": results}
+                        "indexedHistoryCountThroughCutoff": count,
+                        "historyCoveredFrom": answer["range"]["covered_from"],
+                        "interpretation": "Indexed history only, from the catalog's first roster. Not a monthly total, verified inactivity, or a replacement for unknown session payouts."})
+    return {"checkedAt": datetime.now(timezone.utc).isoformat(), "cutoff": cutoff,
+            "indexerMetadata": head["_metadata"], "requestCount": requests, "results": results}
 
 
 if __name__ == "__main__":

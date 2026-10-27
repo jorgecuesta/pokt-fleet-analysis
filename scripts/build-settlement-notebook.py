@@ -9,10 +9,10 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT
 OUT = ROOT/'notebooks/pokt_settlement_collection.ipynb'
 PACKAGE_ID = 'pokt-staged-settlement-20261013'
-MODULES = ['collector/pokt_live_collector.py', 'collector/settlement_collect.py', 'collector/staged_collection.py',
+MODULES = ['collector/pokt_live_collector.py', 'collector/session_catalog.py', 'collector/settlement_collect.py', 'collector/staged_collection.py',
            'analysis/settlement_analysis.py', 'analysis/settlement_product.py', 'tests/test_settlement.py', 'tests/test_staged.py']
 ASSETS = ['collector/public_suffix_list.dat', 'collector/settlement-reference.json.gz',
-          'tests/fixtures/settlement-roster.json.gz', 'tests/fixtures/settlement-chain-events.json.gz',
+          'tests/fixtures/settlement-catalog-roster.json.gz', 'tests/fixtures/settlement-chain-events.json.gz',
           'reviewed-pilot/result.json', 'reviewed-pilot/settlement-evidence.json.gz']
 
 
@@ -151,7 +151,7 @@ Reference sources: [Pocket sessions, claims and proofs](https://docs.pocket.netw
 '''), cell('code', '''sys.path.insert(0, str(WORK_DIR/"collector"))
 sys.path.insert(0, str(WORK_DIR/"analysis"))
 # A different notebook opened earlier in this kernel must not supply stale modules.
-for name in ("staged_collection", "settlement_collect", "pokt_live_collector", "settlement_analysis", "settlement_product"):
+for name in ("staged_collection", "settlement_collect", "session_catalog", "pokt_live_collector", "settlement_analysis", "settlement_product"):
     loaded = sys.modules.get(name)
     if loaded and WORK_DIR.resolve() not in Path(loaded.__file__).resolve().parents:
         del sys.modules[name]
@@ -339,7 +339,7 @@ These are the exact readable modules used by the executable cells. No hidden lib
         'kernelspec': {'display_name': 'Python 3 (ipykernel)', 'language': 'python', 'name': 'python3'},
         'language_info': {'name': 'python', 'version': '3.10+'},
         'pokt_staged_collection': {'packageId': PACKAGE_ID, 'sourceCommit': 'fc0eb630771b96e157caa38cd687f867dc152dd2',
-                                   'modules': modules, 'assets': assets, 'pilotIncluded': True, 'offlineTests': 62}},
+                                   'modules': modules, 'assets': assets, 'pilotIncluded': True, 'offlineTests': 65}},
         'cells': cells}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(notebook, ensure_ascii=False, indent=1)+'\n', encoding='utf-8')
